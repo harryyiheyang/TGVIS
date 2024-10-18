@@ -33,7 +33,7 @@
 #' \item{bXest}{The matrix of resampled eQTL effects used in causal effect estimation.}
 #'
 #' @importFrom CppMatrix matrixInverse matrixMultiply matrixVectorMultiply matrixEigen matrixListProduct matrixGeneralizedInverse
-#' @importFrom susieR susie_rss susie_get_cs
+#' @importFrom susieR susie_rss susie_get_cs coef.susie
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
@@ -119,7 +119,7 @@ XtX=(t(XtX)+XtX)/2
 XtyZ=Xty/sqrt(Xadjusti)
 fit.causali = susie_rss(z=XtyZ,R=XtX,n=Nvec[1],L=L.causal,estimate_prior_method="EM",s_init=fit.causal,prior_weights=prior_weights,intercept=F,max_iter=10)
 AA[i,] = fit.causali$pip
-AB[i,] = coef(fit.causali)[-1]
+AB[i,] = coef.susie(fit.causali)[-1]
 }
 ################################# Preparing the result #####################################
 fit.causal$pip.resampling=colMeans(AA)
@@ -128,7 +128,7 @@ fit.causal$beta.se=apply(AB,2,sd)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip.thres.cred)
 pip.alive=causal.cs$ind.keep
 pip.remove=setdiff(1:ncol(XtX),pip.alive)
-thetagamma=coef(fit.causal)[-1]
+thetagamma=coef.susie(fit.causal)[-1]
 thetagamma[pip.remove]=0
 thetagamma.se=fit.causal$beta.se
 thetagamma.se[pip.remove]=0

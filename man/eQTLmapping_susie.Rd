@@ -8,8 +8,8 @@ eQTLmapping_susie(
   bX,
   LD,
   Nvec,
-  pip.thres = 0.2,
-  pip.min = 0.05,
+  pip.thres = 0.5,
+  pip.min = 0.2,
   L = 5,
   resample = F,
   sampling.time = 100

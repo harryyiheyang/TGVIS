@@ -4,7 +4,7 @@
 \alias{ctwas}
 \title{ctwas: Function to perform SuSiE-based causal tissue-gene pair and direct causal variant estimation}
 \usage{
-ctwas(by, bXest, LD, Noutcome, L.causal = 10, pip.thres.cred = 0.5)
+ctwas(by, bXest, LD, Noutcome, L.causal = 10, pip.thres.cred = 0.95)
 }
 \arguments{
 \item{by}{A vector of Z-scores of the marginal effects from the outcome GWAS.}
@@ -17,7 +17,7 @@ ctwas(by, bXest, LD, Noutcome, L.causal = 10, pip.thres.cred = 0.5)
 
 \item{L.causal}{The number of single effects used for tissue-gene pairs and direct causal variants. Default is 10.}
 
-\item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.5.}
+\item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.95.}
 }
 \value{
 A list containing:

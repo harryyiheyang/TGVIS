@@ -6,7 +6,7 @@
 #' @param bXest A matrix of direct effect estimates based on the Z-scores of tissue-gene pairs.
 #' @param LD The LD matrix of variants.
 #' @param Noutcome The sample size of the outcome GWAS.
-#' @param L.causal.vec A vector of candidate numbers of single effects used in BIC. Default is `c(1:6)`.
+#' @param L.causal.vec A vector of candidate numbers of single effects used in BIC. Default is `c(1:8)`.
 #' @param max.iter The maximum number of iterations for the profile-likelihood algorithm. Default is 50.
 #' @param max.eps The convergence tolerance for the profile-likelihood algorithm. Default is 1e-3.
 #' @param inner.iter The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.
@@ -39,11 +39,11 @@
 #' \item{Bicvec}{A vector of BIC values for each candidate number of single effects.}
 #'
 #' @importFrom CppMatrix matrixInverse matrixMultiply matrixVectorMultiply matrixEigen matrixListProduct matrixGeneralizedInverse
-#' @importFrom susieR susie_rss susie_get_cs
+#' @importFrom susieR susie_rss susie_get_cs coef.susie
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:6),max.iter=50,max.eps=1e-3,inner.iter=50,pip.thres.cred=0.95,varinf.upper.boundary=0.25,varinf.lower.boundary=0.01,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL){
+tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,inner.iter=50,pip.thres.cred=0.95,varinf.upper.boundary=0.25,varinf.lower.boundary=0.01,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL){
 ############################## Preparing the data ##############################
 n=length(by);p=dim(bXest)[2]
 pleiotropy.keep=setdiff(1:n,pleiotropy.rm)
@@ -81,7 +81,7 @@ res.beta=by-matrixVectorMultiply(LD,upsilon)
 Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
 fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[i]),estimate_prior_method="EM",max_iter=inner.iter,intercept=F,standardize=F,prior_weights=prior_weights)
-beta=coef(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
+beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 ############# Score test needs to determine the fixed effect #######################
 ############# We remove the variants in the 95% credible sets with small PIP #######################
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip.min)
@@ -124,7 +124,7 @@ res.beta=by-matrixVectorMultiply(LD,upsilon)
 Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
 fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),estimate_prior_method="EM",max_iter=inner.iter,intercept=F,standardize=F,prior_weights=prior_weights)
-beta=coef(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
+beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip.min)
 pip.alive=causal.cs$ind.keep
 beta[-pip.alive]=0
@@ -157,7 +157,7 @@ pip.remove=setdiff(1:ncol(XtX),pip.alive)
 ###################################### Preparing the results ################################
 if(length(pip.alive)>0){
 pip.remove=setdiff(1:ncol(XtX),pip.alive)
-gammatheta=coef(fit.causal)[-1]
+gammatheta=coef.susie(fit.causal)[-1]
 gammatheta[pip.remove]=0
 gamma=LD[,1]*0
 gamma[pleiotropy.keep]=gammatheta[-c(1:p)]

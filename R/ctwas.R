@@ -27,7 +27,7 @@
 #' \item{cs.summary}{A summary of the credible sets obtained from the analysis.}
 #'}
 #' @importFrom CppMatrix matrixInverse matrixMultiply matrixVectorMultiply matrixEigen matrixListProduct matrixGeneralizedInverse
-#' @importFrom susieR susie_rss susie_get_cs
+#' @importFrom susieR susie_rss susie_get_cs coef.susie
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
@@ -64,7 +64,7 @@ causal.cs <- group.pip.filter(pip.summary = summary(fit.causal)$var, pip.thres.c
 pip.alive <- causal.cs$ind.keep
 pip.remove <- setdiff(1:ncol(XtX), pip.alive)
 ###################################### Preparing the results ################################
-thetagamma <- coef(fit.causal)[-1]
+thetagamma <- coef.susie(fit.causal)[-1]
 thetagamma[pip.remove] <- 0
 thetagamma.se <- fit.causal$beta.se
 thetagamma.se[pip.remove] <- 0

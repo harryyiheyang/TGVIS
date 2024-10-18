@@ -9,12 +9,12 @@ tgvis(
   bXest,
   LD,
   Noutcome,
-  L.causal.vec = c(1:6),
+  L.causal.vec = c(1:8),
   max.iter = 50,
   max.eps = 0.001,
   inner.iter = 50,
-  pip.thres.cred = 0.5,
-  varinf.upper.boundary = 0.3,
+  pip.thres.cred = 0.95,
+  varinf.upper.boundary = 0.25,
   varinf.lower.boundary = 0.01,
   ebic.beta = 1,
   ebic.upsilon = 1,
@@ -32,7 +32,7 @@ tgvis(
 
 \item{Noutcome}{The sample size of the outcome GWAS.}
 
-\item{L.causal.vec}{A vector of candidate numbers of single effects used in BIC. Default is `c(1:6)`.}
+\item{L.causal.vec}{A vector of candidate numbers of single effects used in BIC. Default is `c(1:8)`.}
 
 \item{max.iter}{The maximum number of iterations for the profile-likelihood algorithm. Default is 50.}
 
@@ -40,9 +40,9 @@ tgvis(
 
 \item{inner.iter}{The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.}
 
-\item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.5.}
+\item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.95.}
 
-\item{varinf.upper.boundary}{The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.3.}
+\item{varinf.upper.boundary}{The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.}
 
 \item{varinf.lower.boundary}{The lower boundary for the prior variance of infinitesimal effects, not multiplied by var(y). Default is 0.01.}
 
