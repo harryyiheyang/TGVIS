@@ -1,7 +1,6 @@
 Tissue-Gene pairs, direct causal Variants, and Infinitesimal effects
 selector
 ================
-Yihe Yang
 
 ![](Overview.png)
 

@@ -1,6 +1,5 @@
 ---
 title: "Tissue-Gene pairs, direct causal Variants, and Infinitesimal effects selector"
-author: "Yihe Yang"
 output: github_document
 ---
 
