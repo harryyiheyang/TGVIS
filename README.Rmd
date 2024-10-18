@@ -31,8 +31,6 @@ For variables such as gene-tissue pairs or direct causal variants, TGVIS uses th
 
 You can install the development version of TGVIS from GitHub using the `devtools` package:
 ```
-if (!requireNamespace("devtools", quietly = TRUE))
-    install.packages("devtools")
 devtools::install_github("harryyiheyang/TGVIS")
 ```
 

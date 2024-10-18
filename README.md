@@ -44,8 +44,6 @@ importance.
 You can install the development version of TGVIS from GitHub using the
 `devtools` package:
 
-    if (!requireNamespace("devtools", quietly = TRUE))
-        install.packages("devtools")
     devtools::install_github("harryyiheyang/TGVIS")
 
 # Function usage
