@@ -102,6 +102,15 @@ Other optional parameters with robust default choices include:
     pleiotropy.rm: A vector of indices specifying which variants should not be considered 
                    as having direct causal effects.
 
+## Tutorial
+
+We also provide a real locus data analysis code and data.  
+The data can be downloaded from
+[example-data.zip](https://www.dropbox.com/scl/fi/7ljyj4mc4nmpixzj0l253/example-data.zip?rlkey=s4r4158sow4h9i3nthyy9s7k1&st=fcb0u9tc&dl=0).  
+For a step-by-step guide on how to use TGVIS for data analysis, please
+refer to the tutorial:
+[Data-analysis-using-TGVIS.pdf](Data-analysis-using-TGVIS.pdf).
+
 # License
 
 This package is licensed under the MIT License.
