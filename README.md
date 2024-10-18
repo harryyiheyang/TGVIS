@@ -59,7 +59,7 @@ The function usage are illustrated as follows:
                    ebic.beta=1,ebic.upsilon=1,pip.min=0.05,
                    pv.thres=0.05,pleiotropy.rm=NULL)
 
-The inputs in the first lines are most important, which are
+The most important inputs in the first lines are:
 
     by: A vector of Z-scores of the marginal effects from the outcome GWAS.
 
@@ -70,6 +70,10 @@ The inputs in the first lines are most important, which are
     Noutcome: The sample size of the outcome GWAS.
 
     L.causal.vec: A vector of candidate numbers of single effects used in BIC.
+
+Note that `bXest` is the matrix of direct eQTL effect estimates, which
+can be yielded by SuSiE. The concrete estimation procedure used in our
+data analysis is shown in Tutorial.
 
 Other optional parameters with robust default choices include:
 
@@ -102,7 +106,26 @@ Other optional parameters with robust default choices include:
     pleiotropy.rm: A vector of indices specifying which variants should not be considered 
                    as having direct causal effects.
 
-## Tutorial
+The output of `TGVIS` includes
+
+    theta: the causal effect estimates of gene-tissue pairs
+
+    theta.pip: the individual PIPs of causal effect estimate of gene-tissue pairs
+
+    theta.pratt: the individual Pratt indices of causal effect estimate of gene-tissue pairs
+
+    gamma: the direct causal effects of variants 
+
+    gamma.pip: the individual PIPs of direct causal effects of variants 
+
+    gamma.pratt: the individual Pratt indices of direct causal effects of variants 
+
+    upsilon: the predicted infinitesimal effects
+
+There are more outputs in our functions. Please see the details in
+function.
+
+# Tutorial
 
 We also provide a real locus data analysis code and data.  
 The data can be downloaded from
@@ -117,4 +140,5 @@ This package is licensed under the MIT License.
 
 # Contact
 
-For any questions or issues, please contact Yihe Yang at .
+For any questions or issues, please contact Yihe Yang at
+<yxy1234@case.edu>.
