@@ -14,6 +14,7 @@ tgvis(
   max.eps = 0.001,
   inner.iter = 50,
   pip.thres.cred = 0.95,
+  eigen.thres = 0.99,
   varinf.upper.boundary = 0.25,
   varinf.lower.boundary = 0.01,
   ebic.beta = 1,
@@ -41,6 +42,8 @@ tgvis(
 \item{inner.iter}{The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.}
 
 \item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.95.}
+
+\item{eigen.thres}{The threshold of eigenvalues for modelling the infinitesimal effect. Default is 0.99.}
 
 \item{varinf.upper.boundary}{The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.}
 

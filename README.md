@@ -6,7 +6,7 @@ selector
 
 # Model Introduction
 
-TGVIS assumes that a set of xQTLs influence the products of genes (e.g.,
+We assume that a set of xQTLs influence the products of genes (e.g.,
 expressions and splicing events) at a locus.
 
 In the gene and tissue co-regulation network, certain gene-tissue pairs
@@ -17,7 +17,7 @@ Some genetic variants may directly influence a trait, which are called
 direct causal variants in TWAS and horizontal pleiotropy in cis-MR,
 respectively.
 
-TGVIS accounts for a polygenic architecture of genetic effects, wherein,
+A polygenic architecture of genetic effects is also considered, wherein,
 aside from the direct causal variants with relatively large effects, the
 genetic variants have infinitesimal effects that are modeled through a
 normal distribution with mean zero and small variance.
