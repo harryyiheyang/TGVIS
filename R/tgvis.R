@@ -11,6 +11,7 @@
 #' @param max.eps The convergence tolerance for the profile-likelihood algorithm. Default is 1e-3.
 #' @param inner.iter The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.
 #' @param pip.thres.cred The cumulative PIP threshold for variables in a credible set. Default is 0.95.
+#' @param eigen.thres The threshold of eigenvalues for modelling the infinitesimal effect. Default is 0.99.
 #' @param varinf.upper.boundary The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.
 #' @param varinf.lower.boundary The lower boundary for the prior variance of infinitesimal effects, not multiplied by var(y). Default is 0.01.
 #' @param ebic.beta The extended BIC factor for causal effects of tissue-gene pairs and direct causal variants used in BIC computation. Default is 1.
@@ -43,13 +44,12 @@
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,inner.iter=50,pip.thres.cred=0.95,varinf.upper.boundary=0.25,varinf.lower.boundary=0.01,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL){
+tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,inner.iter=50,pip.thres.cred=0.95,eigen.thres=0.99,varinf.upper.boundary=0.25,varinf.lower.boundary=0.01,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL){
 ############################## Preparing the data ##############################
 n=length(by);p=dim(bXest)[2]
 pleiotropy.keep=setdiff(1:n,pleiotropy.rm)
 Theta=matrixInverse(LD)
 varinf.upper.boundary=varinf.upper.boundary*sum(by*(Theta%*%by))/n
-LD2=matrixMultiply(LD,LD)
 XR=cbind(matrixMultiply(LD,bXest),LD[,pleiotropy.keep])
 XR1=cbind(bXest,diag(n)[,pleiotropy.keep])
 XtX=matrixMultiply(t(XR),XR1)
@@ -64,6 +64,10 @@ XtX=(t(XtX)+XtX)/2
 fiteigen=matrixEigen(LD)
 Umat=fiteigen$vectors
 Dvec=fiteigen$values
+Kthres=eigen_cumsum(Dvec,eigen.thres)
+Umat=Umat[,1:Kthres]
+Dvec=Dvec[1:Kthres]
+LD2=matrixMultiply(Umat,t(Umat)*(Dvec^2))
 prior.weight.theta=rep(1/p,p)
 prior.weight.gamma=rep(1/length(pleiotropy.keep),length(pleiotropy.keep))
 prior_weights=c(prior.weight.theta,prior.weight.gamma)

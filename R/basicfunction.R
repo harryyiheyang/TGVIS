@@ -251,3 +251,15 @@ a[i]=sd(A[,i])
 }
 return(a)
 }
+
+eigen_cumsum=function(D,thres=0.99){
+d=cumsum(D)/sum(D)
+ind=which(d>thres)
+if(length(ind)>1){
+K=ind[1]
+}
+if(length(ind)==1){
+K=length(D)
+}
+return(K)
+}
