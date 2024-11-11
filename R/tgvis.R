@@ -11,7 +11,7 @@
 #' @param max.eps The convergence tolerance for the profile-likelihood algorithm. Default is 1e-3.
 #' @param inner.iter The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.
 #' @param pip.thres.cred The cumulative PIP threshold for variables in a credible set. Default is 0.95.
-#' @param eigen.thres The threshold of eigenvalues for modelling the infinitesimal effect. Default is 0.99.
+#' @param eigen.thres The threshold of eigenvalues for modelling the infinitesimal effect. Default is 0.999.
 #' @param varinf.upper.boundary The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.
 #' @param varinf.lower.boundary The lower boundary for the prior variance of infinitesimal effects, not multiplied by var(y). Default is 0.01.
 #' @param ebic.beta The extended BIC factor for causal effects of tissue-gene pairs and direct causal variants used in BIC computation. Default is 1.
@@ -44,7 +44,7 @@
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,inner.iter=50,pip.thres.cred=0.95,eigen.thres=0.99,varinf.upper.boundary=0.25,varinf.lower.boundary=0.01,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL){
+tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,inner.iter=50,pip.thres.cred=0.95,eigen.thres=0.999,varinf.upper.boundary=0.25,varinf.lower.boundary=0.01,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL){
 ############################## Preparing the data ##############################
 n=length(by);p=dim(bXest)[2]
 pleiotropy.keep=setdiff(1:n,pleiotropy.rm)
