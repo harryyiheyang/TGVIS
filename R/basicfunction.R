@@ -254,7 +254,7 @@ return(a)
 
 eigen_cumsum=function(D,thres=0.99){
 d=cumsum(D)/sum(D)
-ind=which(d>thres)
+ind=which(d>=thres)
 if(length(ind)>1){
 K=ind[1]
 }
