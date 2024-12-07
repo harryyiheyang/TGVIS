@@ -79,7 +79,7 @@ Other optional parameters with robust default choices include:
 
     max.eps: The convergence tolerance for the profile-likelihood algorithm. 
 
-    inner.iter: The maximum number of iterations for `susie_rss` 
+    susie.iter: The maximum number of iterations for `susie_rss` 
                 within the profile-likelihood algorithm. 
                 
     pip.thres.cred: The cumulative PIP threshold for variables in a credible set. 
@@ -103,6 +103,10 @@ Other optional parameters with robust default choices include:
 
     pleiotropy.rm: A vector of indices specifying which variants should not be considered 
                    as having direct causal effects.
+                   
+    prior.weight.theta: A vector of prior weights of gene-tissue pairs, which will be used as input in                     SuSiE. Default is rep(1/p,p) where p is the number of gene-tissue pairs. A                        proper weights could improve the calibration of SuSiE.
+
+    prior.weight.theta: A vector of prior weights of direct causal variants, which will be used as                        input in SuSiE. Default is rep(1/m,m) where m is the number of direct causal                      variant. A proper weights could improve the calibration of SuSiE.
 
 The output of `TGVIS` includes
 

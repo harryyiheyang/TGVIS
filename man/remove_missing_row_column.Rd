@@ -21,9 +21,3 @@ A matrix with rows and columns containing excessive missing values removed based
 \description{
 This function processes a matrix, typically the output from `make_design_matrix`, by removing rows and columns that have a high percentage of missing values (`NA`). The function allows for flexibility in the order of operations, either removing rows first or columns first.
 }
-\examples{
-# Example usage:
-design_matrix <- make_design_matrix(df)
-filtered_matrix <- Impute_Zero(design_matrix, rowthres = 0.95, colthres = 0.95, rowfirst = TRUE)
-print(filtered_matrix)
-}

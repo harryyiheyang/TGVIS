@@ -8,10 +8,11 @@
 #' @param Nvec A vector representing the sample sizes, with the first element for the outcome GWAS and the subsequent elements for eQTL studies.
 #' @param L.eqtl The number of single effects used in the eQTL fine-mapping step. Default is 5.
 #' @param L.causal The number of single effects used for tissue-gene pairs and direct causal variants. Default is 10.
-#' @param pip.thres.cred The cumulative PIP threshold for variables in a credible set. Default is 0.5.
+#' @param pip.thres.cred The cumulative PIP threshold for variables in a credible set. Default is 0.95.
 #' @param eqtl.sampling.time The number of resampling iterations for eQTL effect estimation. Default is 100.
 #' @param causal.sampling.time The number of resampling iterations for causal effect estimation. Default is 100.
 #' @param eqtl.thres A threshold for the minimum individual PIPs in each credible set during eQTL fine-mapping. This threshold is used to pre-remove variables with very low PIPs to avoid overly large credible sets. Default is 0.05.
+#' @param susie.iter The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.
 #'
 #' @return A list containing:
 #' \item{theta}{The estimated effects for tissue-gene pairs, scaled by the outcome GWAS sample size.}
@@ -37,7 +38,7 @@
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-tgfm=function(by,bX,LD,Nvec,L.eqtl=5,L.causal=10,pip.thres.cred=0.5,eqtl.sampling.time=100,causal.sampling.time=100,eqtl.thres=0.05){
+tgfm=function(by,bX,LD,Nvec,L.eqtl=5,L.causal=10,pip.thres.cred=0.5,eqtl.sampling.time=100,causal.sampling.time=100,eqtl.thres=0.05,susie.iter=1000){
 n=length(by);p=dim(bX)[2]
 Theta=matrixInverse(LD)
 eX=bX*0
@@ -101,7 +102,7 @@ XtyZ=Xty/sqrt(Xadjust)
 prior.weight.theta=rep(1/p,p)
 prior.weight.gamma=rep(1/n,n)
 prior_weights=c(prior.weight.theta,prior.weight.gamma)
-fit.causal = susie_rss(z=XtyZ,R=XtX,n=Nvec[1], L = L.causal, residual_variance = 1, estimate_prior_method="EM", prior_weights=prior_weights, intercept=F,max_iter=300)
+fit.causal = susie_rss(z=XtyZ,R=XtX,n=Nvec[1], L = L.causal, residual_variance = 1, estimate_prior_method="EM", prior_weights=prior_weights, intercept=F,max_iter=susie.iter)
 ############################# The second resmaping step ##################################
 AA = AB = matrix(0, causal.sampling.time,n+p)
 for (i in 1:causal.sampling.time) {

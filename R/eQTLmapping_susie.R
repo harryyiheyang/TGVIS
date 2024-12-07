@@ -6,7 +6,7 @@
 #' @param LD The LD matrix of variants.
 #' @param Nvec A vector representing the sample sizes of tissue-gene pair eQTL studies.
 #' @param pip.thres A threshold for individual PIP when no credible set is found. Default is 0.2.
-#' @param pip.min The minimum individual PIP in each 95 \% credible set. Used to remove variables with low PIPs within credible sets. Default is 0.05.
+#' @param pip.min The minimum individual PIP in each 95\% credible set. Used to remove variables with low PIPs within credible sets. Default is 0.05.
 #' @param L The number of single effects to be used in the SuSiE model. Default is 5.
 #' @param resample A logical value indicating whether to resample eQTL effects. Default is `FALSE`.
 #' @param sampling.time The number of resampling iterations to perform when `resample` is `TRUE`. Default is 100.

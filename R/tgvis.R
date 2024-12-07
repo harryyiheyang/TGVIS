@@ -9,16 +9,19 @@
 #' @param L.causal.vec A vector of candidate numbers of single effects used in BIC. Default is `c(1:8)`.
 #' @param max.iter The maximum number of iterations for the profile-likelihood algorithm. Default is 50.
 #' @param max.eps The convergence tolerance for the profile-likelihood algorithm. Default is 1e-3.
-#' @param inner.iter The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.
+#' @param susie.iter The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.
 #' @param pip.thres.cred The cumulative PIP threshold for variables in a credible set. Default is 0.95.
 #' @param eigen.thres The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.
 #' @param varinf.upper.boundary The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.
-#' @param varinf.lower.boundary The lower boundary for the prior variance of infinitesimal effects, not multiplied by var(y). Default is 0.01.
+#' @param varinf.lower.boundary The lower boundary for the prior variance of infinitesimal effects, not multiplied by var(y). Default is 0.001.
 #' @param ebic.beta The extended BIC factor for causal effects of tissue-gene pairs and direct causal variants used in BIC computation. Default is 1.
 #' @param ebic.upsilon The extended BIC factor for infinitesimal effects used in BIC computation. Default is 1.
 #' @param pip.min The minimum PIP threshold for individual causal effects in the profile-likelihood. This is used to specify which tissue-gene pairs and direct causal variants to include in the score test of variance of infinitesimal effects. Default is 0.05.
 #' @param pv.thres The p-value threshold for the score test. Default is 0.05.
 #' @param pleiotropy.rm A vector of indices specifying which variants should not be considered as having direct causal effects.
+#' @param prior.weight.theta A vector of prior weights of gene-tissue pairs, which will be used as input in SuSiE. Default is \code{NULL}.
+#' @param prior.weight.gamma A vector of prior weights of direct causal variants, which will be used as input in SuSiE. Default is \code{NULL}.
+
 #'
 #' @return A list containing:
 #' \item{theta}{The estimated effects for tissue-gene pairs, scaled by the outcome GWAS sample size.}
@@ -44,9 +47,12 @@
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,inner.iter=50,pip.thres.cred=0.95,eigen.thres=1,varinf.upper.boundary=0.25,varinf.lower.boundary=0.01,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL){
+tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,susie.iter=500,pip.thres.cred=0.95,eigen.thres=1,varinf.upper.boundary=0.25,varinf.lower.boundary=0.001,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL,prior.weight.theta=NULL,prior.weight.gamma=NULL){
 ############################## Preparing the data ##############################
 n=length(by);p=dim(bXest)[2]
+if(is.null(pleiotropy.rm)==T){
+pleiotropy.rm=findUniqueNonZeroRows(bXest)
+}
 pleiotropy.keep=setdiff(1:n,pleiotropy.rm)
 Theta=matrixInverse(LD)
 varinf.upper.boundary=varinf.upper.boundary*sum(by*(Theta%*%by))/n
@@ -68,8 +74,14 @@ Kthres=eigen_cumsum(Dvec,eigen.thres)
 Umat=Umat[,1:Kthres]
 Dvec=Dvec[1:Kthres]
 LD2=matrixMultiply(Umat,t(Umat)*(Dvec^2))
+if(is.null(prior.weight.theta)==T){
 prior.weight.theta=rep(1/p,p)
+}
+if(is.null(prior.weight.gamma)==T){
 prior.weight.gamma=rep(1/length(pleiotropy.keep),length(pleiotropy.keep))
+}else{
+prior.weight.gamma=prior.weight.gamma[pleiotropy.keep]
+}
 prior_weights=c(prior.weight.theta,prior.weight.gamma)
 ########################### Selecting the number of single effects ##############################
 Bicvec=L.causal.vec
@@ -79,12 +91,13 @@ varinf=1
 iter=0
 error=1
 beta=XR[1,]
+fit.causal=NULL
 while(error>max.eps&iter<max.iter){
 beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
 Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[i]),estimate_prior_method="EM",max_iter=inner.iter,intercept=F,standardize=F,prior_weights=prior_weights)
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[i]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=F,prior_weights=prior_weights,s_init=fit.causal)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 ############# Score test needs to determine the fixed effect #######################
 ############# We remove the variants in the 95% credible sets with small PIP #######################
@@ -113,7 +126,7 @@ error=norm(beta-beta1,"2")/sqrt(length(beta))
 }
 iter=iter+1
 }
-df=sum(Dvec*Hinv)
+df=sum(Dvec*Hinv)*ifelse(sum(abs(upsilon))==0,0,1)
 res=by-matrixVectorMultiply(XR,beta)-matrixVectorMultiply(LD,upsilon)
 rss=sum(res*matrixVectorMultiply(Theta,res))
 Bicvec[i]=log(rss)+(log(n)+ebic.beta*log(dim(XtX)[1]))/n*L.causal.vec[i]+(ebic.upsilon*log(n)+log(n))/n*df
@@ -124,12 +137,13 @@ upsilon=0*by
 varinf=1
 iter=0
 error=1
+fit.causal=NULL
 while(error>max.eps&iter<max.iter){
 beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
 Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),estimate_prior_method="EM",max_iter=inner.iter,intercept=F,standardize=F,prior_weights=prior_weights)
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=F,prior_weights=prior_weights,s_init=fit.causal)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip.min)
 pip.alive=causal.cs$ind.keep

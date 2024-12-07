@@ -12,16 +12,18 @@ tgvis(
   L.causal.vec = c(1:8),
   max.iter = 50,
   max.eps = 0.001,
-  inner.iter = 50,
+  susie.iter = 500,
   pip.thres.cred = 0.95,
-  eigen.thres = 0.99,
+  eigen.thres = 1,
   varinf.upper.boundary = 0.25,
-  varinf.lower.boundary = 0.01,
+  varinf.lower.boundary = 0.001,
   ebic.beta = 1,
   ebic.upsilon = 1,
   pip.min = 0.05,
   pv.thres = 0.05,
-  pleiotropy.rm = NULL
+  pleiotropy.rm = NULL,
+  prior.weight.theta = NULL,
+  prior.weight.gamma = NULL
 )
 }
 \arguments{
@@ -39,15 +41,15 @@ tgvis(
 
 \item{max.eps}{The convergence tolerance for the profile-likelihood algorithm. Default is 1e-3.}
 
-\item{inner.iter}{The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.}
+\item{susie.iter}{The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.}
 
 \item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.95.}
 
-\item{eigen.thres}{The threshold of eigenvalues for modelling the infinitesimal effect. Default is 0.99.}
+\item{eigen.thres}{The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.}
 
 \item{varinf.upper.boundary}{The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.}
 
-\item{varinf.lower.boundary}{The lower boundary for the prior variance of infinitesimal effects, not multiplied by var(y). Default is 0.01.}
+\item{varinf.lower.boundary}{The lower boundary for the prior variance of infinitesimal effects, not multiplied by var(y). Default is 0.001.}
 
 \item{ebic.beta}{The extended BIC factor for causal effects of tissue-gene pairs and direct causal variants used in BIC computation. Default is 1.}
 
@@ -58,6 +60,10 @@ tgvis(
 \item{pv.thres}{The p-value threshold for the score test. Default is 0.05.}
 
 \item{pleiotropy.rm}{A vector of indices specifying which variants should not be considered as having direct causal effects.}
+
+\item{prior.weight.theta}{A vector of prior weights of gene-tissue pairs, which will be used as input in SuSiE. Default is \code{NULL}.}
+
+\item{prior.weight.gamma}{A vector of prior weights of direct causal variants, which will be used as input in SuSiE. Default is \code{NULL}.}
 }
 \value{
 A list containing:

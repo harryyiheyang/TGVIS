@@ -24,7 +24,7 @@ eQTLmapping_susie(
 
 \item{pip.thres}{A threshold for individual PIP when no credible set is found. Default is 0.2.}
 
-\item{pip.min}{The minimum individual PIP in each 95 \% credible set. Used to remove variables with low PIPs within credible sets. Default is 0.05.}
+\item{pip.min}{The minimum individual PIP in each 95\% credible set. Used to remove variables with low PIPs within credible sets. Default is 0.05.}
 
 \item{L}{The number of single effects to be used in the SuSiE model. Default is 5.}
 

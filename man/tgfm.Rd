@@ -14,7 +14,8 @@ tgfm(
   pip.thres.cred = 0.5,
   eqtl.sampling.time = 100,
   causal.sampling.time = 100,
-  eqtl.thres = 0.05
+  eqtl.thres = 0.05,
+  susie.iter = 1000
 )
 }
 \arguments{
@@ -30,13 +31,15 @@ tgfm(
 
 \item{L.causal}{The number of single effects used for tissue-gene pairs and direct causal variants. Default is 10.}
 
-\item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.5.}
+\item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.95.}
 
 \item{eqtl.sampling.time}{The number of resampling iterations for eQTL effect estimation. Default is 100.}
 
 \item{causal.sampling.time}{The number of resampling iterations for causal effect estimation. Default is 100.}
 
 \item{eqtl.thres}{A threshold for the minimum individual PIPs in each credible set during eQTL fine-mapping. This threshold is used to pre-remove variables with very low PIPs to avoid overly large credible sets. Default is 0.05.}
+
+\item{susie.iter}{The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.}
 }
 \value{
 A list containing:

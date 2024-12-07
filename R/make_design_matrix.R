@@ -8,13 +8,6 @@
 #'
 #' @return A matrix where rows correspond to SNPs, columns correspond to tissue-gene pairs, and values are z-scores. Missing values (`NA`) indicate that the tissue-gene pair does not have a z-score for that SNP.
 #'
-#' @examples
-#' # Example usage:
-#' df <- data.table::data.table(SNP = c("rs1", "rs1", "rs2"),
-#'                              Variable = c("Gene1_Tissue1", "Gene1_Tissue2", "Gene2_Tissue1"),
-#'                              Zscore = c(2.5, -1.2, 3.8))
-#' design_matrix <- Make_Design_Matrix(df)
-#' print(design_matrix)
 #' @export
 #'
 make_design_matrix <- function(df) {

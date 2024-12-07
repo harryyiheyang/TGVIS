@@ -22,9 +22,3 @@ The \code{filter_align} function processes a list of GWAS summary statistics dat
 \details{
 The function performs several key steps: adjusting alleles according to a reference panel, removing duplicate SNPs, and aligning all GWAS data frames to a set of common SNPs. This is often a necessary preprocessing step before performing genetic correlation and heritability analyses.
 }
-\examples{
-\dontrun{
-# Assuming GWAS_List and ref_panel are already defined:
-GWAS_List <- filter_align(GWAS_List, ref_panel)
-}
-}

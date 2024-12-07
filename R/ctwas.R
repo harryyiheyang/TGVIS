@@ -8,9 +8,9 @@
 #' @param Noutcome The sample size of the outcome GWAS.
 #' @param L.causal The number of single effects used for tissue-gene pairs and direct causal variants. Default is 10.
 #' @param pip.thres.cred The cumulative PIP threshold for variables in a credible set. Default is 0.95.
+#' @param susie.iter The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.
 #'
 #' @return A list containing:
-#' \describe{
 #' \item{theta}{The estimated effects for tissue-gene pairs, scaled by the outcome GWAS sample size.}
 #' \item{gamma}{The estimated effects for direct causal variants, scaled by the outcome GWAS sample size.}
 #' \item{theta.se}{Standard errors of the tissue-gene pair effects.}
@@ -25,13 +25,12 @@
 #' \item{gamma.cs.pip}{Cumulative PIP within credible sets for direct causal variants.}
 #' \item{fit.causal}{The SuSiE fit object for the causal analysis.}
 #' \item{cs.summary}{A summary of the credible sets obtained from the analysis.}
-#'}
 #' @importFrom CppMatrix matrixInverse matrixMultiply matrixVectorMultiply matrixEigen matrixListProduct matrixGeneralizedInverse
 #' @importFrom susieR susie_rss susie_get_cs coef.susie
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-ctwas <- function(by, bXest, LD, Noutcome, L.causal = 10, pip.thres.cred = 0.95) {
+ctwas <- function(by, bXest, LD, Noutcome, L.causal = 10, pip.thres.cred = 0.95, susie.iter = 500) {
 ####################################### Preparing the data #####################################
 n <- length(by)
 p <- dim(bXest)[2]
@@ -55,7 +54,7 @@ prior.weight.theta <- rep(1 / p, p)
 prior.weight.gamma <- rep(1 / n, n)
 prior_weights <- c(prior.weight.theta, prior.weight.gamma)
 ####################################### Performing SuSiE ##############################################################
-fit.causal <- susie_rss(z = XtyZ, R = XtX, n = Noutcome, L = L.causal, residual_variance = 1, estimate_prior_method = "EM", prior_weights = prior_weights, intercept = FALSE, max_iter = 300)
+fit.causal <- susie_rss(z = XtyZ, R = XtX, n = Noutcome, L = L.causal, residual_variance = 1, estimate_prior_method = "EM", prior_weights = prior_weights, intercept = FALSE, max_iter = susie.iter)
 ####################################### Resampling the SE ##############################################################
 fit.causal.sampling <- susie.resampling(alpha = fit.causal$alpha, mu = fit.causal$mu, mu2 = fit.causal$mu2)
 fit.causal$beta.se <- fit.causal.sampling$sd

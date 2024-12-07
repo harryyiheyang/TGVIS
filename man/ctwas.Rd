@@ -4,7 +4,15 @@
 \alias{ctwas}
 \title{ctwas: Function to perform SuSiE-based causal tissue-gene pair and direct causal variant estimation}
 \usage{
-ctwas(by, bXest, LD, Noutcome, L.causal = 10, pip.thres.cred = 0.95)
+ctwas(
+  by,
+  bXest,
+  LD,
+  Noutcome,
+  L.causal = 10,
+  pip.thres.cred = 0.95,
+  susie.iter = 500
+)
 }
 \arguments{
 \item{by}{A vector of Z-scores of the marginal effects from the outcome GWAS.}
@@ -18,10 +26,11 @@ ctwas(by, bXest, LD, Noutcome, L.causal = 10, pip.thres.cred = 0.95)
 \item{L.causal}{The number of single effects used for tissue-gene pairs and direct causal variants. Default is 10.}
 
 \item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.95.}
+
+\item{susie.iter}{The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.}
 }
 \value{
 A list containing:
-\describe{
 \item{theta}{The estimated effects for tissue-gene pairs, scaled by the outcome GWAS sample size.}
 \item{gamma}{The estimated effects for direct causal variants, scaled by the outcome GWAS sample size.}
 \item{theta.se}{Standard errors of the tissue-gene pair effects.}
@@ -36,7 +45,6 @@ A list containing:
 \item{gamma.cs.pip}{Cumulative PIP within credible sets for direct causal variants.}
 \item{fit.causal}{The SuSiE fit object for the causal analysis.}
 \item{cs.summary}{A summary of the credible sets obtained from the analysis.}
-}
 }
 \description{
 This function performs the SuSiE (Sum of Single Effects) algorithm to estimate the causal tissue-gene pairs and direct causal variants using a provided set of summary statistics and linkage disequilibrium (LD) matrix. It returns a list of estimates and their associated statistics, including credible sets and Pratt estimations.

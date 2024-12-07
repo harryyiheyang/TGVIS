@@ -263,3 +263,20 @@ K=length(D)
 }
 return(K)
 }
+
+findUniqueNonZeroRows=function(bXest) {
+M=bXest
+nonZeroCounts <- colSums(M != 0)
+uniqueCols <- which(nonZeroCounts == 1)
+if(length(uniqueCols) == 0) {
+uniqueRows=NULL
+}
+if(length(uniqueCols)==1){
+uniqueRows=which(M[,uniqueCols]!=0)
+}
+if(length(uniqueCols)>1){
+nonZeroCounts=rowSums(M[,uniqueCols]!=0)
+uniqueRows <- unique(which(nonZeroCounts>0))
+}
+return(uniqueRows)
+}

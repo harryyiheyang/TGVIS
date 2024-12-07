@@ -8,11 +8,6 @@
 #'
 #' @return A list of data.frames, each corresponding to an input GWAS summary statistics data frame, but filtered, harmonized, and aligned to the common SNPs found across all data frames.
 #'
-#' @examples
-#' \dontrun{
-#' # Assuming GWAS_List and ref_panel are already defined:
-#' GWAS_List <- filter_align(GWAS_List, ref_panel)
-#' }
 #' @details The function performs several key steps: adjusting alleles according to a reference panel, removing duplicate SNPs, and aligning all GWAS data frames to a set of common SNPs. This is often a necessary preprocessing step before performing genetic correlation and heritability analyses.
 #' @importFrom data.table setDT
 #' @export

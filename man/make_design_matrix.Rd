@@ -15,11 +15,3 @@ A matrix where rows correspond to SNPs, columns correspond to tissue-gene pairs,
 \description{
 This function constructs a design matrix from a `data.table` where each row represents a SNP, each column represents a tissue-gene pair, and the values are z-scores. If a tissue-gene pair does not have a z-score for a SNP, the corresponding entry will be `NA`.
 }
-\examples{
-# Example usage:
-df <- data.table::data.table(SNP = c("rs1", "rs1", "rs2"),
-                             Variable = c("Gene1_Tissue1", "Gene1_Tissue2", "Gene2_Tissue1"),
-                             Zscore = c(2.5, -1.2, 3.8))
-design_matrix <- Make_Design_Matrix(df)
-print(design_matrix)
-}
