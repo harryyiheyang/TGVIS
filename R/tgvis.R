@@ -108,7 +108,9 @@ pv=ifelse(varinf<varinf.lower.boundary,0.5,pv)
 }
 }
 }
+if(iter>5){
 error=norm(beta-beta1,"2")/sqrt(length(beta))
+}
 iter=iter+1
 }
 df=sum(Dvec*Hinv)
@@ -147,7 +149,9 @@ pv=ifelse(varinf<varinf.lower.boundary,0.5,pv)
 }
 }
 }
+if(iter>5){
 error=norm(beta-beta1,"2")/sqrt(length(beta))
+}
 iter=iter+1
 }
 var.upsilon=varinf
