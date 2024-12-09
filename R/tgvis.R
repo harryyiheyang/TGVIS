@@ -111,10 +111,10 @@ pv=inf.test(res.inf=res.upsilon,LD=LD,LD2=LD2,Theta=Theta,A=XR[,which(fit.causal
 ######################## Performing REML ###############################
 upsilon=by*0
 if(pv<pv.thres|iter<5){
-for(ii in 1:3){
+for(ii in 1:5){
 Hinv=1/(Dvec+1/varinf)
 upsilon=matrixVectorMultiply(Umat,outcome*Hinv)
-for(jj in 1:3){
+for(jj in 1:5){
 df=sum(Hinv)
 varinf=min((sum(upsilon^2)+df)/n,varinf.upper.boundary)
 pv=ifelse(varinf<varinf.lower.boundary,0.5,pv)
@@ -153,10 +153,10 @@ outcome=matrixVectorMultiply(t(Umat),res.upsilon)
 pv=inf.test(res.inf=res.upsilon,LD=LD,LD2=LD2,Theta=Theta,A=XR[,which(fit.causal$pip>pip.min)])
 upsilon=by*0
 if(pv<pv.thres|iter<5){
-for(ii in 1:3){
+for(ii in 1:10){
 Hinv=1/(Dvec+1/varinf)
 upsilon=matrixVectorMultiply(Umat,outcome*Hinv)
-for(jj in 1:3){
+for(jj in 1:5){
 df=sum(Hinv)
 varinf=min((sum(upsilon^2)+df)/n,varinf.upper.boundary)
 pv=ifelse(varinf<varinf.lower.boundary,0.5,pv)
