@@ -159,7 +159,7 @@ upsilon=matrixVectorMultiply(Umat,outcome*Hinv)
 for(jj in 1:5){
 df=sum(Hinv)
 varinf=min((sum(upsilon^2)+df)/n,varinf.upper.boundary)
-pv=ifelse(varinf<varinf.lower.boundary,0.5,pv)
+pv=ifelse(varinf<varinf.lower.boundary,runif(1,pv.thres,1),pv)
 }
 }
 }
@@ -209,6 +209,6 @@ gamma=gamma.pip=gamma.se=gamma.pratt=gamma.cs=gamma.cs.pip=rep(0,n)
 names(theta)=names(theta.pip)=colnames(bXest)
 names(gamma)=names(gamma.pip)=rownames(bXest)
 }
-A=list(theta=theta*sqrt(Noutcome)/sqrt(XtXadjust[1:p]),gamma=gamma*sqrt(Noutcome),theta.se=theta.se*sqrt(Noutcome)/sqrt(XtXadjust[1:p]),gamma.se=gamma.se*sqrt(Noutcome),theta.pip=theta.pip,gamma.pip=gamma.pip,theta.pratt=theta.pratt,gamma.pratt=gamma.pratt,theta.cs=theta.cs,gamma.cs=gamma.cs,theta.cs.pip=theta.cs.pip,gamma.cs.pip=gamma.cs.pip,upsilon=upsilon,var.upsilon=var.upsilon,fit.causal=fit.causal,cs.summary=causal.cs,Bicvec=Bicvec)
+A=list(theta=theta*sqrt(Noutcome)/sqrt(XtXadjust[1:p]),gamma=gamma*sqrt(Noutcome),theta.se=theta.se*sqrt(Noutcome)/sqrt(XtXadjust[1:p]),gamma.se=gamma.se*sqrt(Noutcome),theta.pip=theta.pip,gamma.pip=gamma.pip,theta.pratt=theta.pratt,gamma.pratt=gamma.pratt,theta.cs=theta.cs,gamma.cs=gamma.cs,theta.cs.pip=theta.cs.pip,gamma.cs.pip=gamma.cs.pip,upsilon=upsilon,var.upsilon=var.upsilon,pv.upsilon=pv,fit.causal=fit.causal,cs.summary=causal.cs,Bicvec=Bicvec)
 return(A)
 }
