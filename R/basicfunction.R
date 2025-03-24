@@ -280,3 +280,113 @@ uniqueRows <- unique(which(nonZeroCounts>0))
 }
 return(uniqueRows)
 }
+
+generate_block_matrix <- function(vars_df, s, theta) {
+ind=which(theta==0)
+vars_df$cs[which(vars_df$variable%in%ind)]=-1
+concerned_vars <- vars_df[vars_df$cs != -1, ]
+cs_values <- unique(concerned_vars$cs)
+max_var_index <- max(vars_df$variable)
+final_matrix <- matrix(0, nrow = max_var_index, ncol = max_var_index)
+for (cs_val in cs_values) {
+group_vars <- concerned_vars$variable[concerned_vars$cs == cs_val]
+if (length(group_vars) > 1) {
+group_s <- s[group_vars]
+D <- generate_D_matrix(group_s,sign(theta[group_vars]))
+final_matrix[group_vars, group_vars]=D
+}
+}
+return(final_matrix)
+}
+
+generate_block_matrix_CARMA <- function(sumstat.result, s, theta) {
+ind=which(theta==0)
+concerned_vars <- sumstat.result[sumstat.result$cs >0, ]
+cs_values <- unique(concerned_vars$cs)
+max_var_index <- nrow(sumstat.result)
+final_matrix <- matrix(0, nrow = max_var_index, ncol = max_var_index)
+for (cs_val in cs_values) {
+group_vars <- concerned_vars$variable[concerned_vars$cs == cs_val]
+if (length(group_vars) > 1) {
+group_s <- s[group_vars]
+D <- generate_D_matrix(group_s,sign(theta[group_vars]))
+final_matrix[group_vars, group_vars]=D
+}
+}
+return(final_matrix)
+}
+
+top_K_pip=function(susie_summary,top_K=1,pip.min.thres=0.01,xQTL.pip.thres=0.5){
+ind=which(susie_summary$cs>0&susie_summary$variable_prob>=pip.min.thres)
+if(length(ind)>0){
+susie_summary=susie_summary[ind,]
+J=max(susie_summary$cs)
+index=c()
+for(j in 1:J){
+indj=which(susie_summary$cs==j)
+g=susie_summary[indj,]
+if(length(indj)<=top_K){
+index=c(index,g$variable)
+}
+if(length(indj)>top_K){
+index=c(index,g$variable[top_K_indices(g$variable_prob,k=top_K)])
+}
+}
+}
+if(length(ind)==0){
+index=which(susie_summary$variable_prob>=xQTL.pip.thres)
+}
+return(index)
+}
+
+group.pip.filter.xQTL=function(pip.summary,xQTL.cred.thres=0.95,xQTL.pip.thres=0.1){
+ind=which(pip.summary$cs>0)
+if(length(ind)>0){
+J=max(pip.summary$cs[ind])
+pip.summary$cs.pip=pip.summary$variable_prob
+for(i in 1:J){
+indi=which(pip.summary$cs==i)
+summaryi=pip.summary[indi,]
+pip.cred=sum(summaryi$variable_prob)
+pip.summary$cs.pip[indi]=pip.cred
+}
+ind.keep=which(pip.summary$cs.pip>=xQTL.cred.thres&pip.summary$variable_prob>=xQTL.pip.thres)
+cs=pip.summary$cs
+cs.pip=pip.summary$cs.pip
+cs->cs[pip.summary$variable]
+cs.pip->cs.pip[pip.summary$variable]
+cs[which(cs==-1)]=0
+}else{
+ind.keep=NULL
+cs=pip.summary$cs.pip*0
+cs.pip=pip.summary$cs.pip*0
+}
+return(list(ind.keep=pip.summary$variable[ind.keep],cs=cs,cs.pip=cs.pip,result=pip.summary))
+}
+
+generate_D_matrix <- function(s, sign_vec) {
+p <- length(s)
+if (length(sign_vec) != p) {
+stop("Length of sign_vec must match length of s.")
+}
+
+if (p == 1) {
+D <- 0
+} else {
+num_pairs <- p*(p-1)/2
+D_all <- matrix(0, nrow = num_pairs, ncol = p)
+
+row_idx <- 1
+for (i in 1:(p-1)) {
+for (j in (i+1):p) {
+D_all[row_idx, i] <-  sign_vec[i] / s[i]
+D_all[row_idx, j] <- -sign_vec[j] / s[j]
+row_idx <- row_idx + 1
+}
+}
+
+D <- t(D_all)%*%D_all
+}
+
+return(D)
+}
