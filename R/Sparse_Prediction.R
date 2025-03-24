@@ -56,7 +56,10 @@ xQTL.weight=rep(1,m)
 pb <- txtProgressBar(min = 0, max = p, style = 3)
 for(i in 1:p){
 fit=susie_rss(z=bX[,i]/bXse[,i],R=LD,n=xQTL.Nvec[i],L=xQTL.max.L,max_iter=1000,prior_weights=xQTL.weight)
-fit=susie_rss(z=bX[,i]/bXse[,i],R=LD,n=xQTL.Nvec[i],L=length(susie_get_cs(fit,coverage=xQTL.cred.thres)$cs)+1,max_iter=1000,prior_weights=xQTL.weight)
+cs_found <- susie_get_cs(fit, coverage = xQTL.cred.thres)$cs
+if (length(cs_found) > 0) {
+fit=susie_rss(z=bX[,i]/bXse[,i],R=LD,n=xQTL.Nvec[i],L=length(susie_get_cs(fit,coverage=xQTL.cred.thres)$cs),max_iter=1000,prior_weights=xQTL.weight)
+}
 xQTLfitList[[i]]=fit
 setTxtProgressBar(pb, i)
 }
