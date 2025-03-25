@@ -390,3 +390,7 @@ D <- t(D_all)%*%D_all
 
 return(D)
 }
+
+top_K_indices <- function(vec, k=1) {
+return(order(vec, decreasing = TRUE)[1:k])
+}
