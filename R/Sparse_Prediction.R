@@ -121,11 +121,9 @@ bXestse0[,i]=sqrt(diag(Thetajj))*bXse[,i]
 LDjj=LD%*%Thetajj%*%LD
 bXest[,i]=as.vector(LD%*%(bXest0[,i]/bXse[,i]))*bXse[,i]
 bXestse[,i]=sqrt(diag(LDjj))*bXse[,i]
-estimated_reliability_ratio[i]=(sum(bXest0[indj,i]*(LDj%*%bXest0[indj,i]))-sum(diag(Thetaj)*bXse[indj,i]^2))/sum(bXest0[indj,i]*(LDj%*%bXest0[indj,i]))
 }else{
 bXest[,i]=bX[,i]
 bXestse[,i]=bXse[,i]
-estimated_reliability_ratio[i]=c(sum(bX[,i]^2)-sum(bXse[,i]^2))/sum(bX[,i]^2)
 }
 }
 }
@@ -158,11 +156,9 @@ bXestse0[,i]=sqrt(diag(Thetajj))*bXse[,i]
 LDjj=LD%*%Thetajj%*%LD
 bXest[,i]=as.vector(LD%*%(bXest0[,i]/bXse[,i]))*bXse[,i]
 bXestse[,i]=sqrt(diag(LDjj))*bXse[,i]
-estimated_reliability_ratio[i]=(sum(bXest0[indj,i]*(LDj%*%bXest0[indj,i]))-sum(diag(Thetaj)*bXse[indj,i]^2))/sum(bXest0[indj,i]*(LDj%*%bXest0[indj,i]))
 }else{
 bXest[,i]=bX[,i]
 bXestse[,i]=bXse[,i]
-estimated_reliability_ratio[i]=c(sum(bX[,i]^2)-sum(bXse[,i]^2))/sum(bX[,i]^2)
 }
 }
 }
