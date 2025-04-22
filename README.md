@@ -131,10 +131,10 @@ function.
 
 We also provide a real locus data analysis code and data.  
 The data can be downloaded from
-[example-data.zip](https://www.dropbox.com/scl/fi/7ljyj4mc4nmpixzj0l253/example-data.zip?rlkey=s4r4158sow4h9i3nthyy9s7k1&st=fcb0u9tc&dl=0).  
+[example-data.zip](https://www.dropbox.com/scl/fi/bak3faecdbb2bwx5k1xmv/TGVIS_example_data.zip?rlkey=qc9crltgviiarm1wycyfxoi6o&st=ap1rymva&dl=0).  
 For a step-by-step guide on how to use TGVIS for data analysis, please
 refer to the tutorial:
-[Data-analysis-using-TGVIS.pdf](Data-analysis-using-TGVIS.pdf).
+[Tutorial-of-TGVIS.pdf](Tutorial%20of%20TGVIS.pdf).
 
 # License
 
