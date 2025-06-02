@@ -143,17 +143,9 @@ M=M+N
 return(M)
 }
 
-susie_get_cs_index=function(res,coverge=0.95,min_abs_corr=0.5){
-A=susie_get_cs(res,coverage=coverge,min_abs_corr=min_abs_corr)
-if(is.null(A)!=1){
-A=A$cs
-s=c()
-for(i in 1:length(A)){
-s=c(s,A[[i]])
-}
-}else{
-s=c()
-}
+susie_get_cs_index=function(res){
+cs=summary(fit)
+s=cs$vars$variable[which(cs$vars$cs>0)]
 return(s)
 }
 
