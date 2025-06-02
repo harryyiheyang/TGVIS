@@ -49,7 +49,7 @@ z <- matrixVectorMultiply(matrixInverse(a), y)
 }
 B[indx, i] <- z
 }, error = function(e) {
-message(paste("Error in iteration", i))
+message(paste0("Error in iteration ", i, ": ", conditionMessage(e)))
 errorindicate <- 1
 })
 if(errorindicate == 1){
