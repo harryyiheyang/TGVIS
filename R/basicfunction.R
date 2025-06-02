@@ -143,7 +143,7 @@ M=M+N
 return(M)
 }
 
-susie_get_cs_index=function(res){
+susie_get_cs_index=function(fit){
 cs=summary(fit)
 s=cs$vars$variable[which(cs$vars$cs>0)]
 return(s)
