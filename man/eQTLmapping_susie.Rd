@@ -4,16 +4,7 @@
 \alias{eQTLmapping_susie}
 \title{eQTLmapping_susie: Function to perform eQTL fine-mapping using SuSiE and optional resampling}
 \usage{
-eQTLmapping_susie(
-  bX,
-  LD,
-  Nvec,
-  pip.thres = 0.5,
-  pip.min = 0.2,
-  L = 5,
-  resample = F,
-  sampling.time = 100
-)
+eQTLmapping_susie(bX, LD, Nvec, pip.thres = 0.5, pip.min = 0.2, L = 5)
 }
 \arguments{
 \item{bX}{A matrix of Z-scores of marginal eQTL effect estimates for tissue-gene pairs.}
@@ -27,15 +18,9 @@ eQTLmapping_susie(
 \item{pip.min}{The minimum individual PIP in each 95\% credible set. Used to remove variables with low PIPs within credible sets. Default is 0.05.}
 
 \item{L}{The number of single effects to be used in the SuSiE model. Default is 5.}
-
-\item{resample}{A logical value indicating whether to resample eQTL effects. Default is `FALSE`.}
-
-\item{sampling.time}{The number of resampling iterations to perform when `resample` is `TRUE`. Default is 100.}
 }
 \value{
-A list containing:
-\item{Estimate}{A matrix of estimated eQTL effects for tissue-gene pairs.}
-\item{Sampling}{A matrix of resampled eQTL effects, if resampling is enabled. Otherwise, this will contain zeros.}
+A matrix of estimated eQTL effects for tissue-gene pairs.
 }
 \description{
 This function performs fine-mapping of eQTLs using the SuSiE (Sum of Single Effects) algorithm. It allows for optional resampling of eQTL effects and returns both the estimated effects and resampled effects.
