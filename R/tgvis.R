@@ -97,7 +97,7 @@ beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
 Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[i]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=F,prior_weights=prior_weights,s_init=fit.causal)
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[i]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=T,prior_weights=prior_weights,s_init=fit.causal)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 ############# Score test needs to determine the fixed effect #######################
 ############# We remove the variants in the 95% credible sets with small PIP #######################
@@ -143,7 +143,7 @@ beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
 Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=F,prior_weights=prior_weights,s_init=fit.causal)
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=T,prior_weights=prior_weights,s_init=fit.causal)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip.min)
 pip.alive=causal.cs$ind.keep
