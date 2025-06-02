@@ -78,7 +78,9 @@ ZAll[eQTLList[[j]]$indx,j]=zall
 for(jj in 1:causal.sampling.time){
 indjj=c((eqtl.sampling.time*(jj-1)+1):(eqtl.sampling.time*jj))
 zjj=z[indjj,]
+if(eqtl.sampling.time>1){
 zjj=colMeans(zjj)
+}
 zjj[abs(zjj)<eqtl.thres]=0
 if(length(indj)>0){
 zjj[-indj]=0
