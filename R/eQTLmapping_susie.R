@@ -29,7 +29,7 @@ a <- LD[indx, indx]
 y <- bX[indx, i]
 errorindicate <- 0
 tryCatch({
-if (length(indx) > 5) {
+if (length(indx) > 3) {
 fit <- susie_rss(z = y, R = a, n = Nvec[i], L = L, verbose = FALSE)
 index.causal = intersect(susie_get_cs_index(fit),which(fit$pip>pip.min))
 z <- coef(fit)[-1] * sqrt(Nvec[i])
