@@ -8,6 +8,7 @@
 #' @param pip.thres A threshold for individual PIP when no credible set is found. Default is 0.2.
 #' @param pip.min The minimum individual PIP in each 95\% credible set. Used to remove variables with low PIPs within credible sets. Default is 0.05.
 #' @param L The number of single effects to be used in the SuSiE model. Default is 5.
+#' @param coverage The coverage of credible set to be used in SuSiE. Default is 0.95.
 #'
 #' @return A matrix of estimated eQTL effects for tissue-gene pairs.
 #'
@@ -16,7 +17,7 @@
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-eQTLmapping_susie <- function(bX,LD,Nvec,pip.thres=0.5,pip.min=0.2,L=5) {
+eQTLmapping_susie <- function(bX,LD,Nvec,pip.thres=0.5,pip.min=0.2,L=5,coverage=0.95,...) {
 p <- ncol(bX)
 B <- bX * 0
 colnames(B)=colnames(bX)
@@ -30,7 +31,7 @@ y <- bX[indx, i]
 errorindicate <- 0
 tryCatch({
 if (length(indx) > 3) {
-fit <- susie_rss(z = y, R = a, n = Nvec[i], L = L, verbose = FALSE)
+fit <- susie_rss(z = y, R = a, n = Nvec[i], L = L, verbose = FALSE, coverage=coverage,...)
 index.causal = intersect(susie_get_cs_index(fit),which(fit$pip>pip.min))
 z <- coef(fit)[-1] * sqrt(Nvec[i])
 if(length(index.causal)>0){
