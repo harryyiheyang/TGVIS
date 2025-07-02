@@ -32,6 +32,7 @@ errorindicate <- 0
 tryCatch({
 if (length(indx) > 3) {
 fit <- susie_rss(z = y, R = a, n = Nvec[i], L = L, verbose = FALSE, coverage=coverage,...)
+fit <- susie_rss(z = y, R = a, n = Nvec[i], L = max(1,length(get_active_indices(fit))), verbose = FALSE, coverage=coverage,...)
 index.causal = intersect(susie_get_cs_index(fit),which(fit$pip>pip.min))
 z <- coef(fit)[-1] * sqrt(Nvec[i])
 if(length(index.causal)>0){

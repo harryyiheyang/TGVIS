@@ -149,6 +149,16 @@ s=cs$vars$variable[which(cs$vars$cs>0)]
 return(s)
 }
 
+get_active_indices <- function(fit) {
+cs = tryCatch(summary(fit), error = function(e) NULL)
+if (!is.null(cs) && length(cs$cs) > 0) {
+active_idx = unique(unlist(cs$cs$cs))
+}else{
+active_idx=NULL
+}
+return(active_idx)
+}
+
 group.pip.filter=function(pip.summary,pip.resamping=NULL,pip.thres.cred=0.5){
 if(is.null(pip.resamping[1])==0){
 pip.summary$variable_prob=pip.resamping[pip.summary$variable]
