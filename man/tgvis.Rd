@@ -23,7 +23,8 @@ tgvis(
   pv.thres = 0.05,
   pleiotropy.rm = NULL,
   prior.weight.theta = NULL,
-  prior.weight.gamma = NULL
+  prior.weight.gamma = NULL,
+  standization = T
 )
 }
 \arguments{
@@ -64,6 +65,8 @@ tgvis(
 \item{prior.weight.theta}{A vector of prior weights of gene-tissue pairs, which will be used as input in SuSiE. Default is \code{NULL}.}
 
 \item{prior.weight.gamma}{A vector of prior weights of direct causal variants, which will be used as input in SuSiE. Default is \code{NULL}.}
+
+\item{standization}{A indicator of whether standarize the input when perfoming SuSiE for fine-mapping causal gene-tissue pairs and direct causal variants. Default is \code{T}.}
 }
 \value{
 A list containing:

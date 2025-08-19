@@ -4,7 +4,16 @@
 \alias{eQTLmapping_susie}
 \title{eQTLmapping_susie: Function to perform eQTL fine-mapping using SuSiE and optional resampling}
 \usage{
-eQTLmapping_susie(bX, LD, Nvec, pip.thres = 0.5, pip.min = 0.2, L = 5)
+eQTLmapping_susie(
+  bX,
+  LD,
+  Nvec,
+  pip.thres = 0.5,
+  pip.min = 0.2,
+  L = 5,
+  coverage = 0.95,
+  ...
+)
 }
 \arguments{
 \item{bX}{A matrix of Z-scores of marginal eQTL effect estimates for tissue-gene pairs.}
@@ -18,6 +27,8 @@ eQTLmapping_susie(bX, LD, Nvec, pip.thres = 0.5, pip.min = 0.2, L = 5)
 \item{pip.min}{The minimum individual PIP in each 95\% credible set. Used to remove variables with low PIPs within credible sets. Default is 0.05.}
 
 \item{L}{The number of single effects to be used in the SuSiE model. Default is 5.}
+
+\item{coverage}{The coverage of credible set to be used in SuSiE. Default is 0.95.}
 }
 \value{
 A matrix of estimated eQTL effects for tissue-gene pairs.

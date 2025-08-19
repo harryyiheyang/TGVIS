@@ -21,6 +21,7 @@
 #' @param pleiotropy.rm A vector of indices specifying which variants should not be considered as having direct causal effects.
 #' @param prior.weight.theta A vector of prior weights of gene-tissue pairs, which will be used as input in SuSiE. Default is \code{NULL}.
 #' @param prior.weight.gamma A vector of prior weights of direct causal variants, which will be used as input in SuSiE. Default is \code{NULL}.
+#' @param standization A indicator of whether standarize the input when perfoming SuSiE for fine-mapping causal gene-tissue pairs and direct causal variants. Default is \code{T}.
 
 #'
 #' @return A list containing:
@@ -47,7 +48,7 @@
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,susie.iter=500,pip.thres.cred=0.95,eigen.thres=1,varinf.upper.boundary=0.25,varinf.lower.boundary=0.001,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL,prior.weight.theta=NULL,prior.weight.gamma=NULL){
+tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,susie.iter=500,pip.thres.cred=0.95,eigen.thres=1,varinf.upper.boundary=0.25,varinf.lower.boundary=0.001,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL,prior.weight.theta=NULL,prior.weight.gamma=NULL,standization=T){
 ############################## Preparing the data ##############################
 n=length(by);p=dim(bXest)[2]
 if(is.null(pleiotropy.rm)==T){
@@ -97,7 +98,7 @@ beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
 Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[i]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=F,prior_weights=prior_weights,s_init=fit.causal)
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[i]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=standization,prior_weights=prior_weights,s_init=fit.causal)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 ############# Score test needs to determine the fixed effect #######################
 ############# We remove the variants in the 95% credible sets with small PIP #######################
@@ -143,7 +144,7 @@ beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
 Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=F,prior_weights=prior_weights,s_init=fit.causal)
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=standization,prior_weights=prior_weights,s_init=fit.causal)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip.min)
 pip.alive=causal.cs$ind.keep
