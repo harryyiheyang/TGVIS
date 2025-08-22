@@ -7,7 +7,8 @@
 #' @param Nvec A vector representing the sample sizes of tissue-gene pair eQTL studies.
 #' @param pip.thres A threshold for individual PIP when no credible set is found. Default is 0.2.
 #' @param pip.min The minimum individual PIP in each 95\% credible set. Used to remove variables with low PIPs within credible sets. Default is 0.05.
-#' @param L The number of single effects to be used in the SuSiE model. Default is 5.
+#' @param L The number of single effects to be used in the SuSiE model. Default is 8.
+#' @param max_iter The maximum iterations in the SuSiE model. Default is 300.
 #' @param coverage The coverage of credible set to be used in SuSiE. Default is 0.95.
 #'
 #' @return A matrix of estimated eQTL effects for tissue-gene pairs.
@@ -17,7 +18,7 @@
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-eQTLmapping_susie <- function(bX,LD,Nvec,pip.thres=0.5,pip.min=0.2,L=5,coverage=0.95,...) {
+eQTLmapping_susie <- function(bX,LD,Nvec,pip.thres=0.5,pip.min=0.2,L=8,coverage=0.95,max_iter=300,...) {
 p <- ncol(bX)
 B <- bX * 0
 colnames(B)=colnames(bX)
@@ -31,8 +32,8 @@ y <- bX[indx, i]
 errorindicate <- 0
 tryCatch({
 if (length(indx) > 3) {
-fit <- susie_rss(z = y, R = a, n = Nvec[i], L = L, verbose = FALSE, coverage=coverage,...)
-fit <- susie_rss(z = y, R = a, n = Nvec[i], L = max(1,length(get_active_indices(fit))), verbose = FALSE, coverage=coverage,...)
+fit <- susie_rss(z = y, R = a, n = Nvec[i], L = L, verbose = FALSE, coverage=coverage, max_iter=max_iter,...)
+fit <- susie_rss(z = y, R = a, n = Nvec[i], L = max(1,length(get_active_indices(fit))), max_iter=max_iter, verbose = FALSE, coverage=coverage,...)
 index.causal = intersect(susie_get_cs_index(fit),which(fit$pip>pip.min))
 z <- coef(fit)[-1] * sqrt(Nvec[i])
 if(length(index.causal)>0){
@@ -40,7 +41,7 @@ z[-index.causal]=0
 if(length(index.causal)>1){
 Diff=generate_block_matrix(summary(fit)$vars,rep(1,length(indx)),z)
 LDj=a[index.causal,index.causal]
-Thetaj=solve(LDj+Diff[index.causal,index.causal]*1e3)
+Thetaj=solve(LDj+Diff[index.causal,index.causal]*1e2)
 z[index.causal]=as.vector(Thetaj%*%y[index.causal])
 }
 }else{

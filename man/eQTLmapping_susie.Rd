@@ -10,8 +10,9 @@ eQTLmapping_susie(
   Nvec,
   pip.thres = 0.5,
   pip.min = 0.2,
-  L = 5,
+  L = 8,
   coverage = 0.95,
+  max_iter = 300,
   ...
 )
 }
@@ -26,9 +27,11 @@ eQTLmapping_susie(
 
 \item{pip.min}{The minimum individual PIP in each 95\% credible set. Used to remove variables with low PIPs within credible sets. Default is 0.05.}
 
-\item{L}{The number of single effects to be used in the SuSiE model. Default is 5.}
+\item{L}{The number of single effects to be used in the SuSiE model. Default is 8.}
 
 \item{coverage}{The coverage of credible set to be used in SuSiE. Default is 0.95.}
+
+\item{max_iter}{The maximum iterations in the SuSiE model. Default is 300.}
 }
 \value{
 A matrix of estimated eQTL effects for tissue-gene pairs.
