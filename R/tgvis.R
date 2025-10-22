@@ -73,7 +73,7 @@ Umat=fiteigen$vectors[,1:idx]
 Dvec=fiteigen$values[1:idx]
 Theta=matrixMultiply(Umat,t(Umat)*(1/Dvec))
 LD2=matrixMultiply(Umat,t(Umat)*(Dvec^2))
-varinf.upper.boundary=varinf.upper.boundary*sum(by*(Theta%*%by))/n
+varinf.upper.boundary=varinf.upper.boundary*sum(by*(Theta%*%by))/idx
 XR=cbind(matrixMultiply(LD,bXest),LD[,pleiotropy.keep])
 XRinv=matrixMultiply(t(XR),Theta)
 XtX=matrixMultiply(XRinv,XR)
@@ -131,7 +131,7 @@ Hinv=1/(Dvec+1/varinf)
 upsilon=matrixVectorMultiply(Umat,outcome*Hinv)
 for(jj in 1:5){
 df=sum(Hinv)
-varinf=min((sum(upsilon^2)+df)/n,varinf.upper.boundary)
+varinf=min((sum(upsilon^2)+df)/idx,varinf.upper.boundary)
 pv=ifelse(varinf<varinf.lower.boundary,0.5,pv)
 }
 }
@@ -144,7 +144,7 @@ iter=iter+1
 df=sum(Dvec*Hinv)*ifelse(sum(abs(upsilon))==0,0,1)
 res=by-matrixVectorMultiply(XR,beta)-matrixVectorMultiply(LD,upsilon)
 rss=sum(res*matrixVectorMultiply(Theta,res))
-Bicvec[i]=log(rss)+(log(n)+ebic.beta*log(dim(XtX)[1]))/n*L.causal.vec[i]+(ebic.upsilon*log(n)+log(n))/n*df
+Bicvec[i]=log(rss)+(log(idx)+ebic.beta*log(dim(XtX)[1]))/idx*L.causal.vec[i]+(ebic.upsilon*log(idx)+log(idx))/idx*df
 }
 ################### Reestimating using optimal number of single effect #####################
 istar=which.min(Bicvec)
@@ -156,7 +156,7 @@ fit.causal=NULL
 while(error>max.eps&iter<max.iter){
 beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
-Xty=as.vector(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
+Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
 fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),
                      estimate_prior_method="EM",max_iter=susie.iter,intercept=F,
@@ -177,7 +177,7 @@ Hinv=1/(Dvec+1/varinf)
 upsilon=matrixVectorMultiply(Umat,outcome*Hinv)
 for(jj in 1:5){
 df=sum(Hinv)
-varinf=min((sum(upsilon^2)+df)/n,varinf.upper.boundary)
+varinf=min((sum(upsilon^2)+df)/idx,varinf.upper.boundary)
 pv=ifelse(varinf<varinf.lower.boundary,runif(1,pv.thres,1),pv)
 }
 }
