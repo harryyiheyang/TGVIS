@@ -7,9 +7,14 @@
 #' @param LD The LD matrix of variants.
 #' @param Noutcome The sample size of the outcome GWAS.
 #' @param L.causal.vec A vector of candidate numbers of single effects used in BIC. Default is `c(1:8)`.
+#' @param estimate_inf An indicator of whether estimating the infinitesimal effect. Default is F.
+#' @param var_inf When estimate_inf = F, the variance of infinitesimal effect (estimated by LDSC possibly). Default is 1e-7.
+#' @param estimate_residual_variance An indicator of whether of not estimating the variance of residuals in SuSiE. Default is F.
+#' @param residual_variance The residual variance.  Default is 1.
 #' @param max.iter The maximum number of iterations for the profile-likelihood algorithm. Default is 50.
 #' @param max.eps The convergence tolerance for the profile-likelihood algorithm. Default is 1e-3.
 #' @param susie.iter The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.
+#' @param scaled_prior_variance The prior variance of signals in SuSiE. Default is 0.5 which is slightly larger than 0.2 in SuSiE software.
 #' @param pip.thres.cred The cumulative PIP threshold for variables in a credible set. Default is 0.95.
 #' @param eigen.thres The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.
 #' @param varinf.upper.boundary The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.
@@ -21,14 +26,11 @@
 #' @param pleiotropy.rm A vector of indices specifying which variants should not be considered as having direct causal effects.
 #' @param prior.weight.theta A vector of prior weights of gene-tissue pairs, which will be used as input in SuSiE. Default is \code{NULL}.
 #' @param prior.weight.gamma A vector of prior weights of direct causal variants, which will be used as input in SuSiE. Default is \code{NULL}.
-#' @param standization A indicator of whether standarize the input when perfoming SuSiE for fine-mapping causal gene-tissue pairs and direct causal variants. Default is \code{T}.
-
+#' @param standization A indicator of whether standardizing the input when performing SuSiE for fine-mapping causal gene-tissue pairs and direct causal variants. Default is \code{T}.
 #'
 #' @return A list containing:
 #' \item{theta}{The estimated effects for tissue-gene pairs, scaled by the outcome GWAS sample size.}
 #' \item{gamma}{The estimated effects for direct causal variants, scaled by the outcome GWAS sample size.}
-#' \item{theta.se}{Standard errors of the tissue-gene pair effects.}
-#' \item{gamma.se}{Standard errors of the direct causal variant effects.}
 #' \item{theta.pip}{Posterior inclusion probabilities (PIP) for tissue-gene pairs.}
 #' \item{gamma.pip}{Posterior inclusion probabilities (PIP) for direct causal variants.}
 #' \item{theta.pratt}{Pratt estimations for tissue-gene pairs.}
@@ -48,18 +50,33 @@
 #' @importFrom Matrix Matrix solve
 #' @export
 #'
-tgvis=function(by,bXest,LD,Noutcome,L.causal.vec=c(1:8),max.iter=50,max.eps=1e-3,susie.iter=500,pip.thres.cred=0.95,eigen.thres=1,varinf.upper.boundary=0.25,varinf.lower.boundary=0.001,ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL,prior.weight.theta=NULL,prior.weight.gamma=NULL,standization=T){
+tgvis=function(estimate_inf=F,by,bXest,LD,Noutcome,L.causal.vec=c(1:8),
+               var_inf=1e-7,estimate_residual_variance=F,
+               scaled_prior_variance=0.5,residual_variance=1,
+               max.iter=50,max.eps=1e-3,susie.iter=500,pip.thres.cred=0.95,
+               eigen.thres=0.999,varinf.upper.boundary=0.25,varinf.lower.boundary=0.001,
+               ebic.beta=1,ebic.upsilon=1,pip.min=0.05,pv.thres=0.05,pleiotropy.rm=NULL,
+               prior.weight.theta=NULL,prior.weight.gamma=NULL,standization=T){
+if(estimate_inf==T){
 ############################## Preparing the data ##############################
 n=length(by);p=dim(bXest)[2]
 if(is.null(pleiotropy.rm)==T){
 pleiotropy.rm=findUniqueNonZeroRows(bXest)
 }
 pleiotropy.keep=setdiff(1:n,pleiotropy.rm)
-Theta=matrixInverse(LD)
+fiteigen=matrixEigen(LD)
+idx=find_cumvar_index(fiteigen$values,thres=eigen.thres)
+if(idx<2){
+stopifnot("LD region is too small. Try other methods like Mendelian randomization.")
+}
+Umat=fiteigen$vectors[,1:idx]
+Dvec=fiteigen$values[1:idx]
+Theta=matrixMultiply(Umat,t(Umat)*(1/Dvec))
+LD2=matrixMultiply(Umat,t(Umat)*(Dvec^2))
 varinf.upper.boundary=varinf.upper.boundary*sum(by*(Theta%*%by))/n
 XR=cbind(matrixMultiply(LD,bXest),LD[,pleiotropy.keep])
-XR1=cbind(bXest,diag(n)[,pleiotropy.keep])
-XtX=matrixMultiply(t(XR),XR1)
+XRinv=matrixMultiply(t(XR),Theta)
+XtX=matrixMultiply(XRinv,XR)
 dXtX <- diag(XtX)
 dXtX[is.na(dXtX)] <- 1
 dXtX[dXtX == 0] <- 1
@@ -68,13 +85,6 @@ diag(XtX) <- dXtX
 XtXadjust=diag(XtX)
 XtX <- cov2cor(XtX)
 XtX=(t(XtX)+XtX)/2
-fiteigen=matrixEigen(LD)
-Umat=fiteigen$vectors
-Dvec=fiteigen$values
-Kthres=eigen_cumsum(Dvec,eigen.thres)
-Umat=Umat[,1:Kthres]
-Dvec=Dvec[1:Kthres]
-LD2=matrixMultiply(Umat,t(Umat)*(Dvec^2))
 if(is.null(prior.weight.theta)==T){
 prior.weight.theta=rep(1/p,p)
 }
@@ -98,7 +108,11 @@ beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
 Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[i]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=standization,prior_weights=prior_weights,s_init=fit.causal)
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[i]),
+                     estimate_prior_method="EM",max_iter=susie.iter,intercept=F,
+                     standardize=standization,prior_weights=prior_weights,
+                     s_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
+                     scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 ############# Score test needs to determine the fixed effect #######################
 ############# We remove the variants in the 95% credible sets with small PIP #######################
@@ -142,9 +156,13 @@ fit.causal=NULL
 while(error>max.eps&iter<max.iter){
 beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
-Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
+Xty=as.vector(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),estimate_prior_method="EM",max_iter=susie.iter,intercept=F,standardize=standization,prior_weights=prior_weights,s_init=fit.causal)
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L.causal.vec[istar]),
+                     estimate_prior_method="EM",max_iter=susie.iter,intercept=F,
+                     standardize=standization,prior_weights=prior_weights,
+                     s_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
+                     scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip.min)
 pip.alive=causal.cs$ind.keep
@@ -170,9 +188,6 @@ error=norm(beta-beta1,"2")/sqrt(length(beta))
 iter=iter+1
 }
 var.upsilon=varinf
-################################# Otaining SE using resampling #######################
-fit.causal.sampling=susie.resampling(alpha=fit.causal$alpha,mu=fit.causal$mu,mu2=fit.causal$mu2)
-fit.causal$beta.se=fit.causal.sampling$sd
 ####################################### Getting the variables in 95% credible sets ####################################
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip.thres.cred)
 pip.alive=causal.cs$ind.keep
@@ -180,16 +195,11 @@ pip.remove=setdiff(1:ncol(XtX),pip.alive)
 ###################################### Preparing the results ################################
 if(length(pip.alive)>0){
 pip.remove=setdiff(1:ncol(XtX),pip.alive)
-gammatheta=coef.susie(fit.causal)[-1]
+gammatheta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 gammatheta[pip.remove]=0
 gamma=LD[,1]*0
 gamma[pleiotropy.keep]=gammatheta[-c(1:p)]
 theta=gammatheta[1:p]
-gammatheta.se=fit.causal$beta.se
-gammatheta.se[pip.remove]=0
-gamma.se=gamma
-gamma.se[pleiotropy.keep]=gammatheta.se[-c(1:p)]
-theta.se=gammatheta.se[1:p]
 gamma.pip=gamma*0
 gamma.pip[pleiotropy.keep]=fit.causal$pip[-c(1:p)]
 theta.pip=fit.causal$pip[1:p]
@@ -200,8 +210,8 @@ theta.cs.pip=gammatheta.cs.pip[1:p]
 gamma.cs=gamma.cs.pip=gamma*0
 gamma.cs[pleiotropy.keep]=gammatheta.cs[-c(1:p)]
 gamma.cs.pip[pleiotropy.keep]=gammatheta.cs.pip[-c(1:p)]
-gamma.pratt=prattestimation(by=by,bXest=diag(length(by)),LD=LD,Theta=Theta,theta=gamma*sqrt(Noutcome))
-theta.pratt=prattestimation(by=by,bXest=bXest,LD=LD,Theta=Theta,theta=theta*sqrt(Noutcome)/sqrt(XtXadjust[1:p]))
+gamma.pratt=prattestimation_gamma(by=by,LD=LD,Theta=Theta,gamma=gamma)
+theta.pratt=prattestimation_theta(by=by,bXest=bXest,LD=LD,Theta=Theta,theta=theta)
 names(theta)=names(theta.pip)=colnames(bXest)
 names(gamma)=names(gamma.pip)=rownames(bXest)
 }else{
@@ -210,6 +220,12 @@ gamma=gamma.pip=gamma.se=gamma.pratt=gamma.cs=gamma.cs.pip=rep(0,n)
 names(theta)=names(theta.pip)=colnames(bXest)
 names(gamma)=names(gamma.pip)=rownames(bXest)
 }
-A=list(theta=theta*sqrt(Noutcome)/sqrt(XtXadjust[1:p]),gamma=gamma*sqrt(Noutcome),theta.se=theta.se*sqrt(Noutcome)/sqrt(XtXadjust[1:p]),gamma.se=gamma.se*sqrt(Noutcome),theta.pip=theta.pip,gamma.pip=gamma.pip,theta.pratt=theta.pratt,gamma.pratt=gamma.pratt,theta.cs=theta.cs,gamma.cs=gamma.cs,theta.cs.pip=theta.cs.pip,gamma.cs.pip=gamma.cs.pip,upsilon=upsilon,var.upsilon=var.upsilon,pv.upsilon=pv,fit.causal=fit.causal,cs.summary=causal.cs,Bicvec=Bicvec)
+A=list(theta=theta,gamma=gamma,theta.pip=theta.pip,gamma.pip=gamma.pip,theta.pratt=theta.pratt,gamma.pratt=gamma.pratt,theta.cs=theta.cs,gamma.cs=gamma.cs,theta.cs.pip=theta.cs.pip,gamma.cs.pip=gamma.cs.pip,upsilon=upsilon,var.upsilon=var.upsilon,pv.upsilon=pv,fit.causal=fit.causal,cs.summary=causal.cs,Bicvec=Bicvec)
+Asummary=summary.tgvis(fit=A,bXest=bXest)
+A$Summary=Asummary
 return(A)
+}else{
+A=tgvis_fast(by,bXest,LD,Lvec=L.causal.vec,n_outcome=Noutcome,var_inf=var_inf,eigen_thres=eigen.thres,pip.thres.cred=pip.thres.cred,susie_iter=susie.iter,estimate_residual_variance=estimate_residual_variance,scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance,prior.weight.theta=prior.weight.theta,prior.weight.gamma=prior.weight.gamma,ebic.factor=ebic.beta)
+return(A)
+}
 }

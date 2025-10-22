@@ -266,6 +266,7 @@ K=length(D)
 return(K)
 }
 
+#' @export
 findUniqueNonZeroRows=function(bXest) {
 M=bXest
 nonZeroCounts <- colSums(M != 0)
@@ -395,4 +396,170 @@ return(D)
 
 top_K_indices <- function(vec, k=1) {
 return(order(vec, decreasing = TRUE)[1:k])
+}
+
+find_cumvar_index <- function(eigenvalues, thres = 1) {
+cumvar <- cumsum(eigenvalues) / sum(eigenvalues)
+idx <- which(cumvar > thres)[1]
+if(is.na(idx)) {
+warning("No index found where cumulative variance exceeds threshold")
+return(length(eigenvalues))
+}
+return(idx)
+}
+
+prattestimation_theta=function(by,bXest,LD,Theta,theta){
+  bXest=as.matrix(bXest)
+  Thetay=matrixVectorMultiply(Theta,by)
+  vary=sum(by*Thetay)
+  varX=bXest[1,]
+  for(j in 1:length(varX)){
+    varX[j]=sum(bXest[,j]*matrixVectorMultiply(LD,bXest[,j]))
+  }
+  Xty=matrixVectorMultiply(t(bXest),by)
+  corXy=Xty/sqrt(varX)/sqrt(vary)
+  corXy[is.na(corXy)]=0
+  theta1=theta*sqrt(varX/vary)
+  pratt=corXy*theta1
+  return(pratt)
+}
+
+prattestimation_gamma=function(by,LD,Theta,gamma){
+  m=nrow(LD)
+  Thetay=matrixVectorMultiply(Theta,by)
+  vary=sum(by*Thetay)
+  varX=rep(1,m)
+  Xty=by
+  corXy=Xty/sqrt(varX)/sqrt(vary)
+  corXy[is.na(corXy)]=0
+  theta1=gamma*sqrt(varX/vary)
+  pratt=corXy*theta1
+  return(pratt)
+}
+
+#' @export
+summary.tgvis <- function(fit, bXest = NULL, quiet = FALSE) {
+  nz_idx <- function(x) {
+    if (is.null(x)) return(integer(0))
+    x2 <- x
+    x2[is.na(x2)] <- 0
+    which(x2 > 0)
+  }
+  safe_get <- function(x, idx, prefix) {
+    if (is.null(x) || length(idx) == 0) return(setNames(numeric(0), NULL))
+    y <- x[idx]
+    nm <- names(x)
+    if (is.null(nm)) {
+      names(y) <- paste0(prefix, "_", idx)
+    } else {
+      names(y) <- nm[idx]
+    }
+    y
+  }
+  safe_vec <- function(x, len, fill = NA_real_) {
+    if (length(x) == 0) return(rep(fill, len))
+    if (length(x) == len) return(x)
+    if (length(x) == 1) return(rep(x, len))
+    y <- rep(fill, len)
+    y[seq_len(min(len, length(x)))] <- x[seq_len(min(len, length(x)))]
+    y
+  }
+  order_na_last <- function(...) {
+    mats <- list(...)
+    keys <- Map(function(v) list(is.na(v), v), mats)
+    do.call(order, c(unlist(keys, recursive = FALSE), list(na.last = TRUE)))
+  }
+
+  idx_theta <- nz_idx(fit$theta.cs)
+  theta    <- safe_get(fit$theta,       idx_theta, "Gene")
+  th_pip   <- safe_get(fit$theta.pip,   idx_theta, "Gene")
+  th_pratt <- safe_get(fit$theta.pratt, idx_theta, "Gene")
+  th_cs    <- safe_get(fit$theta.cs,    idx_theta, "Gene")
+  th_cspip <- safe_get(fit$theta.cs.pip,idx_theta, "Gene")
+
+  df_theta <- if (length(theta)) {
+    data.frame(
+      Variable = names(theta),
+      estimate = as.numeric(theta),
+      pip      = safe_vec(as.numeric(th_pip),   length(theta)),
+      pratt    = safe_vec(as.numeric(th_pratt), length(theta)),
+      cs       = safe_vec(as.numeric(th_cs),    length(theta)),
+      cs.pip   = safe_vec(as.numeric(th_cspip), length(theta)),
+      Type     = rep("Gene", length(theta)),
+      stringsAsFactors = FALSE
+    )
+  } else {
+    NULL
+  }
+
+  idx_gamma <- nz_idx(fit$gamma.cs)
+  gamma    <- safe_get(fit$gamma,       idx_gamma, "SNP")
+  ga_pip   <- safe_get(fit$gamma.pip,   idx_gamma, "SNP")
+  ga_pratt <- safe_get(fit$gamma.pratt, idx_gamma, "SNP")
+  ga_cs    <- safe_get(fit$gamma.cs,    idx_gamma, "SNP")
+  ga_cspip <- safe_get(fit$gamma.cs.pip,idx_gamma, "SNP")
+  df_gamma <- if (length(gamma)) {
+    data.frame(
+      Variable = names(gamma),
+      estimate = as.numeric(gamma),
+      pip      = safe_vec(as.numeric(ga_pip),   length(gamma)),
+      pratt    = safe_vec(as.numeric(ga_pratt), length(gamma)),
+      cs       = safe_vec(as.numeric(ga_cs),    length(gamma)),
+      cs.pip   = safe_vec(as.numeric(ga_cspip), length(gamma)),
+      Type     = rep("SNP", length(gamma)),
+      stringsAsFactors = FALSE
+    )
+  } else {
+    NULL
+  }
+  A <- if (!is.null(df_theta) || !is.null(df_gamma)) {
+    A <- rbind(df_theta, df_gamma)
+    rownames(A) <- NULL
+    A
+  } else {
+    if (!quiet) message("No direct causal variant or gene–tissue pair identified.")
+    return(data.frame(
+      Variable = character(0),
+      cs       = numeric(0),
+      cs.pip   = numeric(0),
+      cs.pratt = numeric(0),
+      xQTL     = character(0),
+      Type     = character(0),
+      estimate = numeric(0),
+      pip      = numeric(0),
+      pratt    = numeric(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+  if (!("cs" %in% names(A)))   A$cs   <- NA_real_
+  if (!("pratt" %in% names(A))) A$pratt <- NA_real_
+  cs_display <- A$cs
+  cs_group <- A$cs
+  cs_group[is.na(cs_group)] <- -Inf
+
+  A$cs.pratt <- ave(A$pratt, cs_group, FUN = function(v) sum(v, na.rm = TRUE))
+  A$cs <- cs_display
+  A$xQTL <- A$Variable
+  if (any(A$Type == "Gene", na.rm = TRUE) &&
+      !is.null(bXest) &&
+      exists("get_nonzero_rows", mode = "function")) {
+
+    exp_idx <- which(A$Type == "Gene")
+    mapped  <- tryCatch(
+      get_nonzero_rows(bXest, A$Variable[exp_idx]),
+      error = function(e) NULL
+    )
+    if (!is.null(mapped) && "NonzeroRows" %in% names(mapped)) {
+      A$xQTL[exp_idx] <- mapped$NonzeroRows
+    }
+  }
+  need_cols <- c("Variable","cs","cs.pip","cs.pratt","xQTL",
+                 "Type","estimate","pip","pratt")
+  for (cc in need_cols) if (!cc %in% names(A)) A[[cc]] <- NA
+  A <- A[, need_cols, drop = FALSE]
+  ord <- order_na_last(A$cs, A$cs.pratt, A$Type, A$Variable)
+  A <- A[ord, , drop = FALSE]
+  rownames(A) <- NULL
+  colnames(A)=tolower(colnames(A))
+  return(A)
 }

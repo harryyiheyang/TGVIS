@@ -5,16 +5,21 @@
 \title{tgvis: Function to estimate and select the optimal number of single effects using profile-likelihood and BIC}
 \usage{
 tgvis(
+  estimate_inf = F,
   by,
   bXest,
   LD,
   Noutcome,
   L.causal.vec = c(1:8),
+  var_inf = 1e-07,
+  estimate_residual_variance = F,
+  scaled_prior_variance = 0.5,
+  residual_variance = 1,
   max.iter = 50,
   max.eps = 0.001,
   susie.iter = 500,
   pip.thres.cred = 0.95,
-  eigen.thres = 1,
+  eigen.thres = 0.999,
   varinf.upper.boundary = 0.25,
   varinf.lower.boundary = 0.001,
   ebic.beta = 1,
@@ -28,6 +33,8 @@ tgvis(
 )
 }
 \arguments{
+\item{estimate_inf}{An indicator of whether estimating the infinitesimal effect. Default is F.}
+
 \item{by}{A vector of Z-scores of the marginal effects from the outcome GWAS.}
 
 \item{bXest}{A matrix of direct effect estimates based on the Z-scores of tissue-gene pairs.}
@@ -37,6 +44,14 @@ tgvis(
 \item{Noutcome}{The sample size of the outcome GWAS.}
 
 \item{L.causal.vec}{A vector of candidate numbers of single effects used in BIC. Default is `c(1:8)`.}
+
+\item{var_inf}{When estimate_inf = F, the variance of infinitesimal effect (estimated by LDSC possibly). Default is 1e-7.}
+
+\item{estimate_residual_variance}{An indicator of whether of not estimating the variance of residuals in SuSiE. Default is F.}
+
+\item{scaled_prior_variance}{The prior variance of signals in SuSiE. Default is 0.5 which is slightly larger than 0.2 in SuSiE software.}
+
+\item{residual_variance}{The residual variance.  Default is 1.}
 
 \item{max.iter}{The maximum number of iterations for the profile-likelihood algorithm. Default is 50.}
 
@@ -66,14 +81,12 @@ tgvis(
 
 \item{prior.weight.gamma}{A vector of prior weights of direct causal variants, which will be used as input in SuSiE. Default is \code{NULL}.}
 
-\item{standization}{A indicator of whether standarize the input when perfoming SuSiE for fine-mapping causal gene-tissue pairs and direct causal variants. Default is \code{T}.}
+\item{standization}{A indicator of whether standardizing the input when performing SuSiE for fine-mapping causal gene-tissue pairs and direct causal variants. Default is \code{T}.}
 }
 \value{
 A list containing:
 \item{theta}{The estimated effects for tissue-gene pairs, scaled by the outcome GWAS sample size.}
 \item{gamma}{The estimated effects for direct causal variants, scaled by the outcome GWAS sample size.}
-\item{theta.se}{Standard errors of the tissue-gene pair effects.}
-\item{gamma.se}{Standard errors of the direct causal variant effects.}
 \item{theta.pip}{Posterior inclusion probabilities (PIP) for tissue-gene pairs.}
 \item{gamma.pip}{Posterior inclusion probabilities (PIP) for direct causal variants.}
 \item{theta.pratt}{Pratt estimations for tissue-gene pairs.}
