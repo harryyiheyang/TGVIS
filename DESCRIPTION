@@ -19,9 +19,19 @@ Imports:
     dplyr,
     tidyr,
     CppMatrix,
-    SBayesRC
+    SBayesRC,
+    ggrepel,
+    ggplot2,
+    grid,
+    stringr,
+    ggsci
 Remotes: 
     harryyiheyang/CppMatrix,
     stephenslab/susieR,
     zhilizheng/SBayesRC
 ORCID: 0000-0001-6563-3579
+URL: https://harryyiheyang.github.io/TGVIS/
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
