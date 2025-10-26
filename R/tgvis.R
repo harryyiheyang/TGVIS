@@ -116,7 +116,7 @@ fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L_vec[i]),
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 ############# Score test needs to determine the fixed effect #######################
 ############# We remove the variants in the 95% credible sets with small PIP #######################
-causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip_thres_cred=pip_min)
+causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip_min)
 pip.alive=causal.cs$ind.keep
 beta[-pip.alive]=0
 res.upsilon=by-matrixVectorMultiply(XR,beta)
@@ -164,7 +164,7 @@ fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L_vec[istar]),
                      s_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
                      scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
-causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip_thres_cred=pip_min)
+causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip_min)
 pip.alive=causal.cs$ind.keep
 beta[-pip.alive]=0
 res.upsilon=by-matrixVectorMultiply(XR,beta)
