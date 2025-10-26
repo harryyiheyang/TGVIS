@@ -1,8 +1,8 @@
 ---
-title: "Data Prepartion"
+title: "Data Preparation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{data-download-02}
+  %\VignetteIndexEntry{Data Preparation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -2,7 +2,7 @@
 title: "Statistical Principle"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{principles-04}
+  %\VignetteIndexEntry{Statistical Principle}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
