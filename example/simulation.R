@@ -14,7 +14,7 @@ CScov=function(p,rho){
 }
 m=200 # number of IVs
 p=10 # number of exposure
-n1=300 # exposure sample size
+n1=3000 # exposure sample size
 n0=5e5 # outcome sample size
 pca.thres=0.999 # PCGMM threshold
 pip.thres=0.3 # PIP threshold of SuSiE in cisMRBEE
@@ -61,10 +61,10 @@ fit.cismrbee=MRBEEX::CisMRBEEX(by=by,bX=bX,byse=byse,bXse=bXse,xQTL.max.L=5,
                                causal.pip.thres=pip.thres)
 
 fittgvis=tgvis(by=by/byse,bXest=fit.cismrbee$bXest0/bXse,LD=LD,Noutcome=n0,
-                      L.causal.vec=c(1:4),eigen.thres=1,pv.thres=5e-3,
-                      ebic.beta=0,susie.iter=500)
+                      L_vec=c(1:4),eigen_thres=1,pv_thres=5e-3,
+                      ebic_beta=0,susie_iter=500)
 
-fittgvis_new=tgvis(by=by/byse,bXest=fit.cismrbee$bXest0/bXse,LD=LD,L.causal.vec=c(1:6),Noutcome=n0,var_inf=var_inf,estimate_inf=F)
+fittgvis_new=tgvis(by=by/byse,bXest=fit.cismrbee$bXest0/bXse,LD=LD,L_vec=c(1:6),Noutcome=n0,var_inf=var_inf,estimate_inf=F)
 fittgvis$theta/multiplefactor
 fittgvis_new$theta/multiplefactor
 fit.cismrbee$theta

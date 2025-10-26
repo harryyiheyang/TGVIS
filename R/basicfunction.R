@@ -418,7 +418,7 @@ return(order(vec, decreasing = TRUE)[1:k])
 
 find_cumvar_index <- function(eigenvalues, thres = 1) {
 cumvar <- cumsum(eigenvalues) / sum(eigenvalues)
-idx <- which(cumvar > thres)[1]
+idx <- which(cumvar >= thres)[1]
 if(is.na(idx)) {
 warning("No index found where cumulative variance exceeds threshold")
 return(length(eigenvalues))

@@ -124,10 +124,7 @@ a=a[which(a$CHR==paste0("chr",unique(LDL_Locus$CHR))),]
 a$MarkerName=paste0(a$CHR,":",a$BP38)
 a$CHR=NULL
 setDT(a)
-a[,c("afc","afc_se") := .(
-  na.omit(afc)[1],
-  na.omit(afc_se)[1]
-),by=.(phenotype_id,cs_id)]
+a[,c("afc","afc_se"):=.(na.omit(afc)[1],na.omit(afc_se)[1]),by=.(phenotype_id,cs_id)]
 a=merge(a,V38[,c("SNP","MarkerName","CHR","BP")],by="MarkerName")
 a=a[a[,.I[which.max(pip)],by=.(phenotype_id,cs_id)]$V1]
 a$Zscore=a$afc/a$afc_se
@@ -160,7 +157,7 @@ bXest=as.matrix(bXest[LDL_Locus$SNP,])
 by=LDL_Locus$Zscore
 R=R[LDL_Locus$SNP,LDL_Locus$SNP]
 t1 <- Sys.time()
-fit1=tgvis(estimate_inf=F,by=by,bXest=bXest,LD=R,L.causal.vec=c(3:8),
+fit1=tgvis(estimate_inf=F,by=by,bXest=bXest,LD=R,L_vec=c(3:8),
           Noutcome=mean(LDL_Locus$N),var_inf=var_inf,
           residual_variance=fitldsc$intercept) 
 t2 <- Sys.time()
@@ -172,12 +169,17 @@ From the results, we can see that TGVIS first identified a missense variant in P
 
 ## Plot TGIVS results
 We also created the plot_tgvis function, which can generate GWAS locus-zoom plots and TGVIS Pratt index plots:
-```{r,fig.heigh=12,fig.width=12,warning=F}
-p1 <- plot_tgvis(gwas_df=LDL_Locus, summary_df=fit$Summary, 
-                 cs.pratt_thres = 0.1, y = "z",palette="iTerm")
-p2 <- plot_tgvis(gwas_df=LDL_Locus, summary_df=fit$Summary, 
-                 cs.pratt_thres = 0.1, y = "cs.pratt",palette="iTerm")
-egg::ggarrange(p1,p2,nrow=2)
+```{r,warning=F}
+p1 <- plot_tgvis(gwas_df=LDL_Locus, summary_df=fit1$Summary, 
+                 cs.pratt_thres = 0.1, y = "z")
+p2 <- plot_tgvis(gwas_df=LDL_Locus, summary_df=fit1$Summary, 
+                 cs.pratt_thres = 0.1, y = "cs.pratt")
+```
+```{r,fig.width=7}
+p1
+```
+```{r,fig.width=7}
+p2
 ```
 
 ## Caveat: the use of Pratt index

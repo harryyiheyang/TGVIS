@@ -10,25 +10,25 @@ tgvis(
   bXest,
   LD,
   Noutcome,
-  L.causal.vec = c(1:8),
+  L_vec = c(1:8),
   var_inf = 1e-07,
   estimate_residual_variance = F,
   scaled_prior_variance = 0.5,
   residual_variance = 1,
-  max.iter = 50,
-  max.eps = 0.001,
-  susie.iter = 500,
-  pip.thres.cred = 0.95,
-  eigen.thres = 0.999,
-  varinf.upper.boundary = 0.25,
-  varinf.lower.boundary = 0.001,
-  ebic.beta = 1,
-  ebic.upsilon = 1,
-  pip.min = 0.05,
-  pv.thres = 0.05,
-  pleiotropy.rm = NULL,
-  prior.weight.theta = NULL,
-  prior.weight.gamma = NULL,
+  max_iter = 50,
+  max_eps = 0.001,
+  susie_iter = 500,
+  pip_thres_cred = 0.95,
+  eigen_thres = 0.999,
+  varinf_upper_boundary = 0.25,
+  varinf_lower_boundary = 0.001,
+  ebic_beta = 1,
+  ebic_upsilon = 1,
+  pip_min = 0.05,
+  pv_thres = 0.05,
+  pleiotropy_rm = NULL,
+  prior_weight_theta = NULL,
+  prior_weight_gamma = NULL,
   standization = T
 )
 }
@@ -43,7 +43,7 @@ tgvis(
 
 \item{Noutcome}{The sample size of the outcome GWAS.}
 
-\item{L.causal.vec}{A vector of candidate numbers of single effects used in BIC. Default is `c(1:8)`.}
+\item{L_vec}{A vector of candidate numbers of single effects used in BIC. Default is `c(1:8)`.}
 
 \item{var_inf}{When estimate_inf = F, the variance of infinitesimal effect (estimated by LDSC possibly). Default is 1e-7.}
 
@@ -53,33 +53,33 @@ tgvis(
 
 \item{residual_variance}{The residual variance.  Default is 1.}
 
-\item{max.iter}{The maximum number of iterations for the profile-likelihood algorithm. Default is 50.}
+\item{max_iter}{The maximum number of iterations for the profile-likelihood algorithm. Default is 50.}
 
-\item{max.eps}{The convergence tolerance for the profile-likelihood algorithm. Default is 1e-3.}
+\item{max_eps}{The convergence tolerance for the profile-likelihood algorithm. Default is 1e-3.}
 
-\item{susie.iter}{The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.}
+\item{susie_iter}{The maximum number of iterations for `susie_rss` within the profile-likelihood algorithm. Default is 50.}
 
-\item{pip.thres.cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.95.}
+\item{pip_thres_cred}{The cumulative PIP threshold for variables in a credible set. Default is 0.95.}
 
-\item{eigen.thres}{The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.}
+\item{eigen_thres}{The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.}
 
-\item{varinf.upper.boundary}{The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.}
+\item{varinf_upper_boundary}{The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.}
 
-\item{varinf.lower.boundary}{The lower boundary for the prior variance of infinitesimal effects, not multiplied by var(y). Default is 0.001.}
+\item{varinf_lower_boundary}{The lower boundary for the prior variance of infinitesimal effects, not multiplied by var(y). Default is 0.001.}
 
-\item{ebic.beta}{The extended BIC factor for causal effects of tissue-gene pairs and direct causal variants used in BIC computation. Default is 1.}
+\item{ebic_beta}{The extended BIC factor for causal effects of tissue-gene pairs and direct causal variants used in BIC computation. Default is 1.}
 
-\item{ebic.upsilon}{The extended BIC factor for infinitesimal effects used in BIC computation. Default is 1.}
+\item{ebic_upsilon}{The extended BIC factor for infinitesimal effects used in BIC computation. Default is 1.}
 
-\item{pip.min}{The minimum PIP threshold for individual causal effects in the profile-likelihood. This is used to specify which tissue-gene pairs and direct causal variants to include in the score test of variance of infinitesimal effects. Default is 0.05.}
+\item{pip_min}{The minimum PIP threshold for individual causal effects in the profile-likelihood. This is used to specify which tissue-gene pairs and direct causal variants to include in the score test of variance of infinitesimal effects. Default is 0.05.}
 
-\item{pv.thres}{The p-value threshold for the score test. Default is 0.05.}
+\item{pv_thres}{The p-value threshold for the score test. Default is 0.05.}
 
-\item{pleiotropy.rm}{A vector of indices specifying which variants should not be considered as having direct causal effects.}
+\item{pleiotropy_rm}{A vector of indices specifying which variants should not be considered as having direct causal effects.}
 
-\item{prior.weight.theta}{A vector of prior weights of gene-tissue pairs, which will be used as input in SuSiE. Default is \code{NULL}.}
+\item{prior_weight_theta}{A vector of prior weights of gene-tissue pairs, which will be used as input in SuSiE. Default is \code{NULL}.}
 
-\item{prior.weight.gamma}{A vector of prior weights of direct causal variants, which will be used as input in SuSiE. Default is \code{NULL}.}
+\item{prior_weight_gamma}{A vector of prior weights of direct causal variants, which will be used as input in SuSiE. Default is \code{NULL}.}
 
 \item{standization}{A indicator of whether standardizing the input when performing SuSiE for fine-mapping causal gene-tissue pairs and direct causal variants. Default is \code{T}.}
 }
