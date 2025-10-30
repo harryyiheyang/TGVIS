@@ -1,0 +1,59 @@
+---
+title: "Statistical Principle"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Statistical Principle}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+We here illustrate the statistical principle of TGVIS for fixed per-SNP heritability and inflation factor. The model we consider is 
+$$
+\boldsymbol z=\sqrt{n}\mathbf R\hat{\mathbf B}\boldsymbol\theta+\sqrt{n}\mathbf R\boldsymbol\gamma+\boldsymbol\epsilon,
+$$
+where $\boldsymbol z$ is the vector of z-scores of outcome GWAS at the target locus, $n$ is the sample size of outcome GWAS, $\mathbf R$ is the LD matrix, $\hat{\mathbf B}$ is the matrix of **direct** xQTL effects of gene-tissue pairs, $\boldsymbol\theta$ is the vector of causal effects of gene-tissue pairs, $\boldsymbol\gamma$ is the vector of direct causal effects of variants, and $\boldsymbol\epsilon$ is the residual of this model. Under the model setting of TGVIS, 
+$$
+\boldsymbol\epsilon=\sqrt n\mathbf R\boldsymbol\upsilon+\mathbf R^{\frac12}\boldsymbol\varepsilon,
+$$
+where $\boldsymbol\upsilon$ is a vector of infinitesimal effects, and $\boldsymbol\varepsilon$ is a vector of independent and identically distributed (IID) normal variables. 
+
+We previously assumed that $\boldsymbol\upsilon\sim\mathcal N(0,\sigma_\upsilon^2\mathbf I)$ and $\boldsymbol\varepsilon\sim\mathcal N(0,\mathbf I)$, and estimate the variance $\sigma_\upsilon^2$ via REML. However, Dr. Can Yang's group have proposed multiple works, including [MR-APSS](https://www.pnas.org/doi/10.1073/pnas.2106858119) and [XMAP](https://www.nature.com/articles/s41467-023-42614-7), which all assume:
+
+- The variance $\sigma_\upsilon^2$ can be used as the per-SNP heritability estimated by LDSC,
+ 
+- The variance of $\boldsymbol\varepsilon$ should be the intercept of the LDSC which is usually larger than 1.
+
+Therefore, we added the parameter `estimate_inf` in TGVIS. When `estimate_inf=T`, it executes the original TGVIS, while when `estimate_inf=F`, users need to provide two parameters: `var_inf` and `residual_variance`, which are the per-SNP heritability and intercept estimate in LDSC, respectively.
+
+When fixing $\sigma_\upsilon^2$ to be per-SNP heritability, we can analytically obtain the conditional distribution of $\boldsymbol z$:
+$$
+\boldsymbol z\sim\mathcal N(\sqrt{n}\mathbf R\hat{\mathbf B}\boldsymbol\theta+\sqrt{n}\mathbf R\boldsymbol\gamma,\hat a\mathbf R+n\hat \sigma_\upsilon^2\mathbf R^2),
+$$
+where $\hat a$ is the intercept estimate in LDSC and $\hat \sigma_\upsilon^2=\hat h^2/M$ is the per-SNP heritability, $\hat h^2$ is the  heritability estimate and $M$ is the number of total variants. The weighted least square (WLS) corresponding to this conditional distribution is:
+$$
+\mathcal Q(\boldsymbol\theta,\boldsymbol\gamma)=(\boldsymbol z-\sqrt{n}\mathbf R(\hat{\mathbf B}\boldsymbol\theta+\boldsymbol\gamma))^\top\mathbf\Omega(\boldsymbol z-\sqrt{n}\mathbf R(\hat{\mathbf B}\boldsymbol\theta+\boldsymbol\gamma)),
+$$
+where $\mathbf\Omega$ is the inverse of $\hat a\mathbf R+n\hat \sigma_\upsilon^2\mathbf R^2$. 
+
+Note that for non-clumping data, the number of SNPs is in the range 3000-10000, depending on how large the locus is. In this case, the LD matrix $\mathbf R$ is not positive definite: it has a large number of zero eigenvalues. Hence, we slightly modified the TGVIS function to make it robust to this high-dimensional setting. Specifically, we added the parameter `eigen_thres` with a default value of `eigen_thres=0.999`. We calculate the cumulative proportion of variance explained by the eigenvalues of $\mathbf R$, and find `K` such that the cumulative proportion exceeds `eigen_thres`. Then the inverse matrix $\mathbf\Omega$ is approximated by
+$$
+\mathbf\Omega_{K}=\sum_{k=1}^K\bigg(\frac{1}{d_k\hat a}+\frac{n}{d_k^2\hat\sigma^2_\upsilon}\bigg)\boldsymbol U_k\boldsymbol U_k^\top,
+$$
+where $\boldsymbol U_1,\dots,\boldsymbol U_K$ are the first $K$ eigenvectors of $\mathbf R$ and $d_1,\dots,d_K$ are the first $K$ eigenvalues of $\mathbf R$. 
+
+The next step is straightforward: we first yield the inner product matrix:
+$$
+\mathbf\Sigma=(\mathbf R\hat{\mathbf B},\mathbf R)^\top\mathbf\Omega_{K}(\mathbf R\hat{\mathbf B},\mathbf R),\quad \mathbf D=\sqrt{\text{diag}(\mathbf\Sigma)},
+$$
+and then calculate `R` and `z`:
+$$
+\text{R}=\text{diag}(\mathbf D)^{-1}\mathbf\Sigma\text{diag}(\mathbf D)^{-1},\quad \text{z}=\text{diag}(\mathbf D)^{-1}(\mathbf R\hat{\mathbf B},\mathbf R)^\top\mathbf\Omega_{K}\boldsymbol z.
+$$
+Note that `R` and `z` are the notations of parameters in `susie_rss()`.

@@ -1,0 +1,45 @@
+url: https://harryyiheyang.github.io/TGVIS/
+destination: docs
+template:
+  bootstrap: 5
+  bootswatch: flatly
+  includes:
+    in_header: |
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <style>
+        body { padding-top: 4.5rem; }
+        @media (max-width: 768px) { body { padding-top: 5.5rem; } }
+        .col-md-8 { max-width: 90%; }
+        .container { max-width: 1400px; }
+        .page-main { font-size: 1.05rem; line-height: 1.7; }
+      </style>
+
+navbar:
+  title: "TGVIS"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "User Guide"
+      menu:
+        - text: "Introduction"
+          href: articles/Introduction.html
+        - text: "Data Preparation"
+          href: articles/Data-Preparation.html
+        - text: "Analysis"
+          href: articles/Analysis.html
+        - text: "Statistical Principle"
+          href: articles/Statistical-Principle.html
+    - text: "Reference"
+      href: reference/index.html
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/harryyiheyang/TGVIS
+
+articles:
+  - title: "User Guide"
+    navbar: "User Guide"
+    contents:
+      - Introduction
+      - "Data Preparation"
+      - Analysis
+      - "Statistical Principle"

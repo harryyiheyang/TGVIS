@@ -1,0 +1,45 @@
+---
+title: "Introduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+TGVIS (Tissue-Gene pairs, direct causal Variants, and Infinitesimal effects Selector) is an R package implementing a novel multivariate TWAS framework for fine-mapping causal gene-tissue pairs and genetic variants while accounting for polygenic background effects.
+The method is particularly well-suited for settings where:
+
+- Multiple gene-tissue pairs (e.g., from eQTL or sQTL studies) are correlated due to shared regulatory mechanisms,
+- A small number of variants exert direct causal effects on the trait (horizontal pleiotropy),
+- The majority of genetic variants contribute small, infinitesimal effects modeled via a normal prior.
+
+TGVIS integrates these signals under a unified Sum of Single Effects (SuSiE) regression model, enabling:
+
+- Joint identification of causal gene-tissue pairs and direct causal variants,
+- Control of background biases including inlication and infiniteisimal effect
+- Quantification of variable importance using posterior inclusion probabilities (PIP) and Pratt indices.
+
+This approach improves causal inference in complex trait genetics by distinguishing true mediators from pleiotropic signals and controlling for underlying background variation.
+
+<img src="Overview.png" width="80%" alt="TGVIS Overview" style="display: block; margin: auto;">
+
+## Quick Start
+```r
+# Install from GitHub
+devtools::install_github("harryyiheyang/TGVIS")
+
+# Load package
+library(TGVIS)
+```
+
+## Reference 
+Yang, Y., Lorincz-Comi, N. and Zhu, X., 2025. Uncovering causal gene-tissue pairs and variants through a multivariate TWAS controlling for infinitesimal effects. Nature Communications, 16(1), p.6098.
+https://doi.org/10.1038/s41467-025-61423-8

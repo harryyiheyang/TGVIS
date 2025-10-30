@@ -1,0 +1,37 @@
+Package: TGVIS
+Type: Package
+Title: Tissue-Gene pairs, direct causal Variants, and Infinitesimal effects Selector (TGVIS)
+Version: 0.1.0
+Author: Yihe Yang
+Maintainer: Yihe Yang <yxy1234@case.edu>
+Description: Implements the TGVI selector, a multivariable TWAS method that selects causal tissue-gene pairs and direct causal variants using SuSiE, while modeling infinitesimal effects via REML.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.3
+Imports: 
+    MASS,
+    Matrix,
+    Rcpp (>= 1.0.0),
+    RcppArmadillo,
+    susieR,
+    data.table,
+    dplyr,
+    tidyr,
+    CppMatrix,
+    SBayesRC,
+    ggrepel,
+    ggplot2,
+    grid,
+    stringr,
+    ggsci
+Remotes: 
+    harryyiheyang/CppMatrix,
+    stephenslab/susieR,
+    zhilizheng/SBayesRC@fac67faf7557b2e542e5cd54fd54b7bd50abb156
+ORCID: 0000-0001-6563-3579
+URL: https://harryyiheyang.github.io/TGVIS/
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

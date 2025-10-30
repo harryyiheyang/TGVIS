@@ -1,0 +1,210 @@
+---
+title: "Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+We show an example with step-by-step codes.
+```{r,echo=F}
+filepath="D:/TGVIS_New/"
+```
+
+## Load outcome GWAS data
+Our first step is to load the GWAS summary data after SBayesRC QC:
+```{r,message=F,warning=F}
+library(data.table)
+library(arrow)
+library(ldscR)
+library(TGVIS)
+library(dplyr)
+library(glue)
+LDL=fread(glue("{filepath}/LDL.ma"))%>%setDT(.)
+LDL
+```
+This GWAS summary dataset was derived from the EUR-specific LDL-C GWAS of the GLGC consortium and subsequently imputed using SBayesRC. The imputed version is available [here](https://www.dropbox.com/scl/fi/h49jbm4uoc9fqlrmx70is/LDL.ma?rlkey=zmwp6cwait5c22rpbc18878vj&st=jqzz20u1&dl=0). Every GWAS summary data that has passed SBayesRC QC has exactly 7,356,518 SNPs, and the A1 and A2 alleles of each SNP are consistent with the A1 and A2 alleles in the SBayesRC LD matrix. The SNP information file is:
+```{r}
+V=fread(glue("{filepath}/ukbEUR_Imputed/snp.info"))%>%
+  dplyr::select(SNP=ID,A1,A2,CHR=Chrom,BP=PhysPos,Freq=A1Freq,Block)%>%setDT(.)
+V
+```
+Here, the column `Block` is necessary as the LD matrices are stored block-by-block. 
+
+The next step is 1) adding Z-score into this file and 2) zoom in the target locus (PCSK9) region:
+```{r}
+LDL$CHR=V$CHR
+LDL$BP=V$BP
+LDL$Block=V$Block
+LDL$Zscore=LDL$b/LDL$se
+LDL_Locus=LDL%>%dplyr::filter(CHR==1&abs(BP-55.5e6)<0.5e6)%>%arrange(BP)
+```
+Here for demonstration purposes, we consider a region with a radius of 0.5MB. However, in practice, users can flexibly choose the radius according to specific situations. We do not recommend an excessively large radius (e.g., 1.5MB) because at that point the dimension of the LD matrix will typically exceed 10 thousand, which will cause memory issues.
+
+The next step is estimating the per-SNP heritability and inflation factor using LDSC:
+```{r}
+fitldsc=ldsc.univ(gwas=as.data.frame(LDL[,c("SNP","Zscore","N")]),LDSC=as.data.frame(Hapmap3_EURLDSC),sampling.time=0)
+print(fitldsc)
+var_inf=fitldsc$h2/fitldsc$M
+```
+We found that our functions sometimes fail due to subtle differences between data.table and data.frame. Therefore, when encountering issues, you can convert data.table to data.frame, just as we did when performing LDSC. We used different LDSC panels to estimate the inflation factor and heritability for GLGC lipids, and obtained similar results: large inflation (exceeding 1.5) while heritability is less than 0.1. This is slightly abnormal. However, we still recommend using LDSC estimates when there is no evidence to prove this is incorrect.
+
+## Load xQTL direct effect data
+We utilize the fine-mapping results of eQTL data based on v10 data published by GTEx. Although GTEx also published fine-mapping results for sQTL and apaQTL, these results only contain credible sets of causal xQTLs but lack effect sizes, making them temporarily unavailable. We will update if they provide sQTL and apaQTL with effect sizes. We first examine the data structure:
+```{r}
+path=glue("{filepath}/GTEx_v10_SuSiE_eQTL")
+parquet_files=list.files(path=path,pattern="\\.parquet$",full.names=F)
+Tissue=sapply(strsplit(basename(parquet_files),"\\."),function(x) x[1])%>%sort()
+a=read_parquet(Sys.glob(glue("{path}/{Tissue[1]}*.parquet"))[1])
+colnames(a)
+head(a)
+```
+We found that the first column is `Ensemble` ID, the second column is `Symbol`, and the fourth column is crucial: it provides `CHR_BP_A2_A1_Build`, which we will use to match with the GWAS summary data. Furthermore, each gene may have one or multiple credible sets, indicated in the `cs` column. For eQTLs within a credible set of a gene, GTEx only records the `afc` and `afc_se` corresponding to the eQTL with the maximum PIP. Since GTEx's genotype data largely overlaps with SBayesRC's 7M SNP data but some portions are still different, we performed the following QC process. First, SBayesRC's build is BP37, while GTEx is BP38, so our lab created a correspondence file ourselves, which can be downloaded from [Dropbox](https://www.dropbox.com/scl/fi/jhnxxxtj44iyg2mpx7911/7M_BP_3738.parquet?rlkey=lt8hqmb3dxq1o695aam14g51z&st=tns272h5&dl=0):
+```{r}
+V38=read_parquet(glue("{filepath}/7M_BP_3738.parquet"))
+V38=V38[which(V38$CHR==unique(LDL_Locus$CHR)),]
+# Reduce the size of V38 to improve computational efficiency  
+V38$MarkerName=paste0("chr",V38$MarkerName)
+```
+Then we harmonize this eQTL data:
+```{r}
+a$phenotype_id=sub("\\..*","",a$phenotype_id) # remove version subscript
+a=setDT(a)
+a[,c("CHR","BP38","A2","A1","Build"):=tstrsplit(variant_id,"_",fixed=TRUE)]
+# Extract CHR and other information from the column variant_id
+a=a[which(a$CHR==paste0("chr",unique(LDL_Locus$CHR))),]
+# Reduce the size of eQTL data to improve computational efficiency  
+a$MarkerName=paste0(a$CHR,":",a$BP38)
+a$CHR=NULL
+```
+Our next step is our additional quality control. We first impute the afc and afc_se that are set as NA in this data with the afc and afc_se of the xQTL with the maximum PIP in the same credible set. This imputation is reasonable because variants within a credible set theoretically share the same single effect. After that, we merge this eQTL data with V38. This process may lose some key SNPs, so we performed additional QC. For the merged data, we retain the eQTL with the maximum PIP within each credible set.
+```{r}
+# Impute NA values with the first non-NA afc and afc_se within each credible set
+a[,c("afc","afc_se"):=.(na.omit(afc)[1],na.omit(afc_se)[1]),by=.(phenotype_id,cs_id)]
+# Merge eQTL data with V38 reference data
+a=merge(a,V38[,c("SNP","MarkerName","CHR","BP")],by="MarkerName")
+# Keep only the eQTL with maximum PIP for each credible set
+a=a[a[,.I[which.max(pip)],by=.(phenotype_id,cs_id)]$V1]
+```
+The subsequent steps are standard processing procedures:
+```{r}
+# Calculate Z-score
+a$Zscore=a$afc/a$afc_se
+# Remove missing values
+a=na.omit(a)
+# Harmonize alleles with reference panel
+a=TGVIS::allele_harmonise(ref_panel=LDL_Locus[,c("SNP","A1","A2")],a)
+# Sort by gene name, base pair position, and absolute Z-score
+a=arrange(a,gene_name,BP,abs(Zscore))
+# Select and rename columns
+a=dplyr::select(a,SNP,A1,A2,Zscore,Gene=phenotype_id,GeneSymbol=gene_name)
+# Add tissue information
+a$Tissue=Tissue[1]
+# Create a combined variable identifier
+a$Variable=paste0(a$GeneSymbol,"*",a$Tissue)
+a
+```
+We write the above QC process as a for loop to perform similar processing for all 50 GTEx tissues:
+```{r}
+eQTL=list()
+for(i in 1:length(Tissue)){
+a=read_parquet(Sys.glob(glue("{path}/{Tissue[i]}*.parquet"))[1])
+a$phenotype_id=sub("\\..*","",a$phenotype_id)
+a=setDT(a)
+a[,c("CHR","BP38","A2","A1","Build"):=tstrsplit(variant_id,"_",fixed=TRUE)]
+a=a[which(a$CHR==paste0("chr",unique(LDL_Locus$CHR))),]
+a$MarkerName=paste0(a$CHR,":",a$BP38)
+a$CHR=NULL
+setDT(a)
+a[,c("afc","afc_se"):=.(na.omit(afc)[1],na.omit(afc_se)[1]),by=.(phenotype_id,cs_id)]
+a=merge(a,V38[,c("SNP","MarkerName","CHR","BP")],by="MarkerName")
+a=a[a[,.I[which.max(pip)],by=.(phenotype_id,cs_id)]$V1]
+a$Zscore=a$afc/a$afc_se
+a=na.omit(a)
+a=TGVIS::allele_harmonise(ref_panel=LDL_Locus[,c("SNP","A1","A2")],a)
+a=arrange(a,gene_name,BP,abs(Zscore))
+a=dplyr::select(a,SNP,A1,A2,Zscore,Gene=phenotype_id,GeneSymbol=gene_name)
+a$Tissue=Tissue[i]
+a$Variable=paste0(a$GeneSymbol,"*",a$Tissue)
+eQTL[[i]]=a
+}
+eQTL=do.call(rbind,eQTL)
+eQTL=merge(eQTL,LDL_Locus[,"SNP"],by="SNP",all.y=T)
+```
+
+## Load LD matrix
+We utilized the `readEig` function from SBayesRC to write a function called `build_LD_matrix` for loading the LD matrix. This function can use the block information in `GWAS_Locus` to locate the blocks that need to be read, and then extract the LD matrix for the corresponding SNPs:
+```{r}
+R=build_LD_matrix(GWAS_Locus=LDL_Locus,ldDir=glue("{filepath}/ukbEUR_Imputed/"),snpinfo=V)
+R=cov2cor(R)
+```
+We also provide the codes to calculate the LD matrix using all European individuals in the UKBB:
+```r
+library(BEDMatrix)
+EURIND=readRDS(glue("{filepath}/BED_file/UKBB_EURIND.rds)")
+# The indices of EUR individuals
+SNPVec=LDL_Locus$SNP
+write.table(SNPVec,glue("{filepath}/BED_file/LDLSNP.txt"),row.names=F,quote=F,sep="\t",col.names=F)
+setwd("~/Plink/")
+system(glue("./plink --bfile {filepath}/UKB_Genotype_7M/7M_{Chr} --extract {filepath}/BED_file/LDLSNP.txt --make-bed --out {filepath}/BED_file/LDLSNP_Missing"),intern=T)
+system(glue("./plink --bfile {filepath}/BED_file/LDLSNP_Missing --fill-missing-a2 --make-bed --out {filepath}/BED_file/LDLSNP"),intern=T)
+# Imputate very few missing data using referance alleles
+system(glue("rm {filepath}/BED_file/LDLSNP_Missing*"))
+geno=BEDMatrix(glue("{filepath}/BED_file/LDLSNP.bed"))
+geno_bim=fread(glue("{filepath}/BED_file/LDLSNP.bim"))%>%
+         dplyr::select(CHR=V1,SNP=V2,BP=V4,A1=V5,A2=V6)%>%mutate(MarkerName=paste0(SNP,"_",A1))
+X=as.matrix(geno)
+X=X[EURIND,]
+R=cor(X)
+colnames(R)=rownames(R)=geno_bim$SNP
+R=R[LDL_Locus$SNP,LDL_Locus$SNP]
+R=cov2cor(R)
+```
+
+## Perform TGVIS
+Next, we use the function make_design_matrix to convert the eQTL data into an $m\times p$ matrix, where $m$ is the number of SNPs and $p$ is the number of gene-tissue pairs. Then we align the LD matrix, GWAS data, and eQTL data, and finally perform TGVIS:
+```{r}
+bXest=TGVIS::make_design_matrix(eQTL[,c("SNP","Variable","Zscore")])
+bXest=bXest[,!(colnames(bXest)=="<NA>")]
+bXest[is.na(bXest)]=0
+bXest=as.matrix(bXest[LDL_Locus$SNP,])
+by=LDL_Locus$Zscore
+R=R[LDL_Locus$SNP,LDL_Locus$SNP]
+t1 <- Sys.time()
+fit1=tgvis(estimate_inf=F,by=by,bXest=bXest,LD=R,L_vec=c(3:8),
+          Noutcome=mean(LDL_Locus$N),var_inf=var_inf,
+          residual_variance=fitldsc$intercept) 
+t2 <- Sys.time()
+print(difftime(t2, t1, units = "secs"))
+# residual_variance is the inflaction factor
+fit1$Summary
+```
+From the results, we can see that TGVIS first identified a missense variant in PCSK9, rs11591147, with a Pratt index of 0.462. This SNP is the PCSK9 variant initially reported by [NEJM](https://www.nejm.org/doi/full/10.1056/NEJMc0707445). TGVIS also identified the PCSK9-Whole_Blood gene-tissue pair, which has two causal eQTLs with a Pratt index of 0.179. TGVIS additionally identified multiple credible sets with Pratt indices not exceeding 0.05. However, PCSK9 is one of the most significant loci for LDL-C, so even though the Pratt index is low, this is only relative to this locus. Cross-loci comparison using Pratt indices is not valid.
+
+## Plot TGIVS results
+We also created the plot_tgvis function, which can generate GWAS locus-zoom plots and TGVIS Pratt index plots:
+```{r,warning=F}
+p1 <- plot_tgvis(gwas_df=LDL_Locus, summary_df=fit1$Summary, 
+                 cs.pratt_thres = 0.1, y = "z")
+p2 <- plot_tgvis(gwas_df=LDL_Locus, summary_df=fit1$Summary, 
+                 cs.pratt_thres = 0.1, y = "cs.pratt")
+```
+```{r,fig.width=7,warning=F}
+p1
+```
+```{r,fig.width=7,warning=F}
+p2
+```
+
+In this plot, each circle or square represents a variant. Squares indicate causal xQTLs, while circles indicate non-causal ones. A single gene–tissue pair may have multiple causal xQTLs, so multiple signals for the same pair can appear in the plot. This does not mean there are multiple genes, but rather multiple xQTLs associated with one gene–tissue pair. Only variants or gene–tissue pairs with cs.pratt values exceeding the threshold are annotated.
+
+## Caveat: the use of Pratt index
+In our ongoing analysis, we found that the Pratt index can be affected by many factors, with the largest influence being LD mismatch. For example, the Pratt index may yield very low values for some GWAS data that are not largely based on UK Biobank, which is because when there is LD mismatch, we cannot correctly measure the contribution of each variable. This issue affects not only TGVIS but all fine-mapping methods. Therefore, we consider the Pratt index not as a measure of causality or non-causality, but as a measure of relative importance. We can regard a Pratt index less than 0.05 as relatively unimportant, such as in the `PCSK9` example, where rs2495491 is less important relative to rs11591147.

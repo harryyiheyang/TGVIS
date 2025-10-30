@@ -1,0 +1,21 @@
+citHeader("To cite TGVIS in publications use the following paper:")
+
+citEntry(
+  entry = "Article",
+  title = "Uncovering causal gene-tissue pairs and variants through a multivariate TWAS controlling for infinitesimal effects",
+  author = personList(
+    person("Yihe", "Yang", role = "aut"),
+    person("Noah", "Lorincz-Comi", role = "aut"),
+    person("Xiaofeng", "Zhu", role = "aut")
+  ),
+  journal = "Nature Communications",
+  volume = 16,
+  number = 1,
+  pages = 6098,
+  year = 2025,
+  publisher = "Nature Publishing Group UK London",
+  doi = "10.1038/s41467-025-56098-7",
+
+  textVersion =
+    "Yang, Y., Lorincz-Comi, N., & Zhu, X. (2025). Uncovering causal gene-tissue pairs and variants through a multivariate TWAS controlling for infinitesimal effects. Nature Communications, 16(1), 6098. https://doi.org/10.1038/s41467-025-56098-7"
+)
