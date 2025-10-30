@@ -1,0 +1,12 @@
+pandoc: 3.6.3
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  Analysis: Analysis.html
+  Data Preparation: Data Preparation.html
+  Introduction: Introduction.html
+  Statistical Principle: Statistical Principle.html
+last_built: 2025-10-30T03:34Z
+urls:
+  reference: https://harryyiheyang.github.io/TGVIS/reference
+  article: https://harryyiheyang.github.io/TGVIS/articles
