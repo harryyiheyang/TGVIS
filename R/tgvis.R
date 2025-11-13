@@ -156,7 +156,7 @@ fit.causal=NULL
 while(error>max_eps&iter<max_iter){
 beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
-Xty=c(matrixVector(t(bXest),res.beta),res.beta[pleiotropy.keep])
+Xty=c(matrixVectorMultiply(t(bXest),res.beta),res.beta[pleiotropy.keep])
 XtyZ=Xty/sqrt(XtXadjust)
 fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L_vec[istar]),
                      estimate_prior_method="EM",max_iter=susie_iter,intercept=F,
