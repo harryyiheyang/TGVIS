@@ -111,7 +111,7 @@ XtyZ=Xty/sqrt(XtXadjust)
 fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L_vec[i]),
                      estimate_prior_method="EM",max_iter=susie_iter,intercept=F,
                      standardize=standization,prior_weights=prior_weights,
-                     s_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
+                     model_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
                      scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 ############# Score test needs to determine the fixed effect #######################
@@ -161,7 +161,7 @@ XtyZ=Xty/sqrt(XtXadjust)
 fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L_vec[istar]),
                      estimate_prior_method="EM",max_iter=susie_iter,intercept=F,
                      standardize=standization,prior_weights=prior_weights,
-                     s_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
+                     model_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
                      scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance)
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip_min)
