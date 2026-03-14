@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 We show an example with step-by-step codes.
 ```{r,echo=F}
-filepath="D:/TGVIS_New/"
+filepath="C:/Users/yxy1234/Downloads/TGVIS_New/"
 ```
 
 ## Load outcome GWAS data
@@ -53,7 +53,7 @@ The next step is estimating the per-SNP heritability and inflation factor using 
 ```{r}
 fitldsc=ldsc.univ(gwas=as.data.frame(LDL[,c("SNP","Zscore","N")]),LDSC=as.data.frame(Hapmap3_EURLDSC),sampling.time=0)
 print(fitldsc)
-var_inf=fitldsc$h2/fitldsc$M
+var_inf=fitldsc$h2/7.35E6
 ```
 We found that our functions sometimes fail due to subtle differences between data.table and data.frame. Therefore, when encountering issues, you can convert data.table to data.frame, just as we did when performing LDSC. We used different LDSC panels to estimate the inflation factor and heritability for GLGC lipids, and obtained similar results: large inflation (exceeding 1.5) while heritability is less than 0.1. This is slightly abnormal. However, we still recommend using LDSC estimates when there is no evidence to prove this is incorrect.
 
@@ -184,7 +184,7 @@ fit1=tgvis(estimate_inf=F,by=by,bXest=bXest,LD=R,L_vec=c(3:8),
           residual_variance=fitldsc$intercept) 
 t2 <- Sys.time()
 print(difftime(t2, t1, units = "secs"))
-# residual_variance is the inflaction factor
+# residual_variance is the inflation factor
 fit1$Summary
 ```
 From the results, we can see that TGVIS first identified a missense variant in PCSK9, rs11591147, with a Pratt index of 0.462. This SNP is the PCSK9 variant initially reported by [NEJM](https://www.nejm.org/doi/full/10.1056/NEJMc0707445). TGVIS also identified the PCSK9-Whole_Blood gene-tissue pair, which has two causal eQTLs with a Pratt index of 0.179. TGVIS additionally identified multiple credible sets with Pratt indices not exceeding 0.05. However, PCSK9 is one of the most significant loci for LDL-C, so even though the Pratt index is low, this is only relative to this locus. Cross-loci comparison using Pratt indices is not valid.
@@ -205,6 +205,22 @@ p2
 ```
 
 In this plot, each circle or square represents a variant. Squares indicate causal xQTLs, while circles indicate non-causal ones. A single gene–tissue pair may have multiple causal xQTLs, so multiple signals for the same pair can appear in the plot. This does not mean there are multiple genes, but rather multiple xQTLs associated with one gene–tissue pair. Only variants or gene–tissue pairs with cs.pratt values exceeding the threshold are annotated.
+
+## TGVIS with Adaptively Estimated Infinitesimal Effects
+TGVIS also supports adaptive estimation of infinitesimal effects using variants within a locus. Although this may require additional computational time, it serves as a useful alternative to fixing the variance of the infinitesimal effect at the per-SNP heritability estimate obtained from LDSC.
+
+```{r}
+t1 <- Sys.time()
+fit2=tgvis(estimate_inf=T,by=by,bXest=bXest,LD=R,L_vec=c(7:8),
+          Noutcome=mean(LDL_Locus$N)) 
+# Set small number of candidate L to reduce the computational time
+# Set estimate_inf=T to estimate the infinitesimal effect adaptively
+# Please remove var_inf and residual_variance two parameters.
+t2 <- Sys.time()
+print(difftime(t2, t1, units = "secs"))
+fit2$Summary
+```
+In our experience, setting `estimate_inf = TRUE` can be computationally intensive for loci with strong genetic associations, such as the PCSK9 locus for LDL-C and the CETP locus for HDL-C. Importantly, however, the choice between `estimate_inf = TRUE` and `FALSE` has negligible impact on results at such loci, because the dominant fine-mapping signals overwhelm any infinitesimal effect. For loci with weak or moderate genetic associations, the running time is typically within 10 minutes, and the two settings may yield different results. We therefore recommend running both as a robustness check for weaker loci.
 
 ## Caveat: the use of Pratt index
 In our ongoing analysis, we found that the Pratt index can be affected by many factors, with the largest influence being LD mismatch. For example, the Pratt index may yield very low values for some GWAS data that are not largely based on UK Biobank, which is because when there is LD mismatch, we cannot correctly measure the contribution of each variable. This issue affects not only TGVIS but all fine-mapping methods. Therefore, we consider the Pratt index not as a measure of causality or non-causality, but as a measure of relative importance. We can regard a Pratt index less than 0.05 as relatively unimportant, such as in the `PCSK9` example, where rs2495491 is less important relative to rs11591147.

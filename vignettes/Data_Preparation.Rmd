@@ -2,7 +2,7 @@
 title: "Data Preparation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Data Preparation}
+  %\VignetteIndexEntry{Data_Preparation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 ## Input 1: GWAS summary data for TGVIS
 
-This section describes how to prepare GWAS summary statistics and LD reference panels for TGVIS analysis. TGVIS requires GWAS summary-level data for a single locus as its in the first input. We strongly recommend performing quality control using **SBayesRC** prior to running TGVIS. Although SBayesRC is primarily designed for polygenic prediction using functional annotations and high-density SNPs (>7 million), its two quality control functions are highly effective for preprocessing GWAS summary data.
+This section describes how to prepare GWAS summary statistics and LD reference panels for TGVIS analysis. TGVIS requires GWAS summary-level data for a single locus as its in the first input. We strongly recommend performing quality control using **SBayesRC** prior to running TGVIS. Although SBayesRC is primarily designed for polygenic prediction using functional annotations and high-density SNPs (7.35 million), its two quality control functions are highly effective for preprocessing GWAS summary data.
 
 ###  Quality Control with SBayesRC
 
@@ -81,4 +81,4 @@ devtools::install_github("harryyiheyang/ldscR")
 ldscR::ldsc.univ(gwas = GWAS_Locus,LDSC = Hapmap3_EURLDSC,sampling.time = 0)
 # setting sampling.time = 0 disables standard error estimation via blockwise bootstrap.
 ```
-In addition, empirical observations show that total heritability typically ranges between 0.1 and 0.3 across traits. Hence, a robust default is to set: per-SNP heritability = 0.2 / 1e6 and inflation factor = 1.1 (slightly larger than 1).
+In addition, empirical observations show that total heritability typically ranges between 0.1 and 0.3 across traits. Hence, a robust default is to set: per-SNP heritability = 0.2 / 7.35e6 and inflation factor = 1.1 (slightly larger than 1).

@@ -24,11 +24,11 @@ navbar:
         - text: "Introduction"
           href: articles/Introduction.html
         - text: "Data Preparation"
-          href: articles/Data-Preparation.html
+          href: articles/Data_Preparation.html
         - text: "Analysis"
           href: articles/Analysis.html
         - text: "Statistical Principle"
-          href: articles/Statistical-Principle.html
+          href: articles/Statistical_Principle.html
     - text: "Reference"
       href: reference/index.html
   right:
@@ -40,6 +40,6 @@ articles:
     navbar: "User Guide"
     contents:
       - Introduction
-      - "Data Preparation"
+      - Data_Preparation
       - Analysis
-      - "Statistical Principle"
+      - Statistical_Principle

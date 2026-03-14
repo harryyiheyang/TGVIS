@@ -42,9 +42,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-user-guide" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">User Guide</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-user-guide">
 <li><a class="dropdown-item" href="../articles/Introduction.html">Introduction</a></li>
-    <li><a class="dropdown-item" href="../articles/Data-Preparation.html">Data Preparation</a></li>
+    <li><a class="dropdown-item" href="../articles/Data_Preparation.html">Data Preparation</a></li>
     <li><a class="dropdown-item" href="../articles/Analysis.html">Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Statistical-Principle.html">Statistical Principle</a></li>
+    <li><a class="dropdown-item" href="../articles/Statistical_Principle.html">Statistical Principle</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -86,7 +86,7 @@ QC:</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://harryyiheyang.github.io/TGVIS/">TGVIS</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glue.tidyverse.org/" class="external-link">glue</a></span><span class="op">)</span></span>
-<span><span class="va">LDL</span><span class="op">=</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{filepath}/LDL.ma"</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span></span>
+<span><span class="va">LDL</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{filepath}/LDL.ma"</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span></span>
 <span><span class="va">LDL</span></span>
 <span><span class="co">#&gt;                  SNP     A1     A2     freq             b          se         p</span></span>
 <span><span class="co">#&gt;               &lt;char&gt; &lt;char&gt; &lt;char&gt;    &lt;num&gt;         &lt;num&gt;       &lt;num&gt;     &lt;num&gt;</span></span>
@@ -122,8 +122,8 @@ Every GWAS summary data that has passed SBayesRC QC has exactly
 with the A1 and A2 alleles in the SBayesRC LD matrix. The SNP
 information file is:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">V</span><span class="op">=</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{filepath}/ukbEUR_Imputed/snp.info"</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>SNP<span class="op">=</span><span class="va">ID</span>,<span class="va">A1</span>,<span class="va">A2</span>,CHR<span class="op">=</span><span class="va">Chrom</span>,BP<span class="op">=</span><span class="va">PhysPos</span>,Freq<span class="op">=</span><span class="va">A1Freq</span>,<span class="va">Block</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">V</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{filepath}/ukbEUR_Imputed/snp.info"</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>SNP<span class="op">=</span><span class="va">ID</span>,<span class="va">A1</span>,<span class="va">A2</span>,CHR<span class="op">=</span><span class="va">Chrom</span>,BP<span class="op">=</span><span class="va">PhysPos</span>,Freq<span class="op">=</span><span class="va">A1Freq</span>,<span class="va">Block</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span></span>
 <span><span class="va">V</span></span>
 <span><span class="co">#&gt;                  SNP     A1     A2   CHR       BP     Freq Block</span></span>
 <span><span class="co">#&gt;               &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;    &lt;int&gt;    &lt;num&gt; &lt;int&gt;</span></span>
@@ -159,15 +159,15 @@ factor using LDSC:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fitldsc</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/ldscR/man/ldsc.univ.html" class="external-link">ldsc.univ</a></span><span class="op">(</span>gwas<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">LDL</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SNP"</span>,<span class="st">"Zscore"</span>,<span class="st">"N"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,LDSC<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">Hapmap3_EURLDSC</span><span class="op">)</span>,sampling.time<span class="op">=</span><span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Processing data"</span></span>
-<span><span class="co">#&gt; Time difference of 4.571996 secs</span></span>
+<span><span class="co">#&gt; Time difference of 2.283911 secs</span></span>
 <span><span class="co">#&gt; [1] "Initial Heritability Estimate"</span></span>
-<span><span class="co">#&gt; Time difference of 0.03129983 secs</span></span>
+<span><span class="co">#&gt; Time difference of 0.05144215 secs</span></span>
 <span><span class="co">#&gt; [1] "Heritability Estimation (Reweighted)"</span></span>
-<span><span class="co">#&gt; Time difference of 0.9223781 secs</span></span>
+<span><span class="co">#&gt; Time difference of 0.07996798 secs</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fitldsc</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   intercept intercept.se         h2 h2.se       M</span></span>
-<span><span class="co">#&gt; 1  1.784062           NA 0.07295848    NA 1094541</span></span>
-<span><span class="va">var_inf</span><span class="op">=</span><span class="va">fitldsc</span><span class="op">$</span><span class="va">h2</span><span class="op">/</span><span class="va">fitldsc</span><span class="op">$</span><span class="va">M</span></span></code></pre></div>
+<span><span class="co">#&gt; 1  2.026328           NA 0.05526118    NA 1094541</span></span>
+<span><span class="va">var_inf</span><span class="op">=</span><span class="va">fitldsc</span><span class="op">$</span><span class="va">h2</span><span class="op">/</span><span class="fl">7.35E6</span></span></code></pre></div>
 <p>We found that our functions sometimes fail due to subtle differences
 between data.table and data.frame. Therefore, when encountering issues,
 you can convert data.table to data.frame, just as we did when performing
@@ -225,8 +225,8 @@ which can be downloaded from <a href="https://www.dropbox.com/scl/fi/jhnxxxtj44i
 <p>Then we harmonize this eQTL data:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a</span><span class="op">$</span><span class="va">phenotype_id</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"\\..*"</span>,<span class="st">""</span>,<span class="va">a</span><span class="op">$</span><span class="va">phenotype_id</span><span class="op">)</span> <span class="co"># remove version subscript</span></span>
-<span><span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span></span>
-<span><span class="va">a</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CHR"</span>,<span class="st">"BP38"</span>,<span class="st">"A2"</span>,<span class="st">"A1"</span>,<span class="st">"Build"</span><span class="op">)</span><span class="op">:=</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/tstrsplit.html" class="external-link">tstrsplit</a></span><span class="op">(</span><span class="va">variant_id</span>,<span class="st">"_"</span>,fixed<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span></span>
+<span><span class="va">a</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CHR"</span>,<span class="st">"BP38"</span>,<span class="st">"A2"</span>,<span class="st">"A1"</span>,<span class="st">"Build"</span><span class="op">)</span><span class="op">:=</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/tstrsplit.html" class="external-link">tstrsplit</a></span><span class="op">(</span><span class="va">variant_id</span>,<span class="st">"_"</span>,fixed<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co"># Extract CHR and other information from the column variant_id</span></span>
 <span><span class="va">a</span><span class="op">=</span><span class="va">a</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">CHR</span><span class="op">==</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"chr"</span>,<span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">LDL_Locus</span><span class="op">$</span><span class="va">CHR</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,<span class="op">]</span></span>
 <span><span class="co"># Reduce the size of eQTL data to improve computational efficiency  </span></span>
@@ -288,12 +288,12 @@ processing for all 50 GTEx tissues:</p>
 <span><span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Tissue</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
 <span><span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.glob.html" class="external-link">Sys.glob</a></span><span class="op">(</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{path}/{Tissue[i]}*.parquet"</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">a</span><span class="op">$</span><span class="va">phenotype_id</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"\\..*"</span>,<span class="st">""</span>,<span class="va">a</span><span class="op">$</span><span class="va">phenotype_id</span><span class="op">)</span></span>
-<span><span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span></span>
-<span><span class="va">a</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CHR"</span>,<span class="st">"BP38"</span>,<span class="st">"A2"</span>,<span class="st">"A1"</span>,<span class="st">"Build"</span><span class="op">)</span><span class="op">:=</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/tstrsplit.html" class="external-link">tstrsplit</a></span><span class="op">(</span><span class="va">variant_id</span>,<span class="st">"_"</span>,fixed<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span></span>
+<span><span class="va">a</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CHR"</span>,<span class="st">"BP38"</span>,<span class="st">"A2"</span>,<span class="st">"A1"</span>,<span class="st">"Build"</span><span class="op">)</span><span class="op">:=</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/tstrsplit.html" class="external-link">tstrsplit</a></span><span class="op">(</span><span class="va">variant_id</span>,<span class="st">"_"</span>,fixed<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">a</span><span class="op">=</span><span class="va">a</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">CHR</span><span class="op">==</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"chr"</span>,<span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">LDL_Locus</span><span class="op">$</span><span class="va">CHR</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,<span class="op">]</span></span>
 <span><span class="va">a</span><span class="op">$</span><span class="va">MarkerName</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">CHR</span>,<span class="st">":"</span>,<span class="va">a</span><span class="op">$</span><span class="va">BP38</span><span class="op">)</span></span>
 <span><span class="va">a</span><span class="op">$</span><span class="va">CHR</span><span class="op">=</span><span class="cn">NULL</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span></span>
 <span><span class="va">a</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"afc"</span>,<span class="st">"afc_se"</span><span class="op">)</span><span class="op">:=</span><span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">afc</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">afc_se</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,by<span class="op">=</span><span class="fu">.</span><span class="op">(</span><span class="va">phenotype_id</span>,<span class="va">cs_id</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">V38</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SNP"</span>,<span class="st">"MarkerName"</span>,<span class="st">"CHR"</span>,<span class="st">"BP"</span><span class="op">)</span><span class="op">]</span>,by<span class="op">=</span><span class="st">"MarkerName"</span><span class="op">)</span></span>
 <span><span class="va">a</span><span class="op">=</span><span class="va">a</span><span class="op">[</span><span class="va">a</span><span class="op">[</span>,<span class="va">.I</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">pip</span><span class="op">)</span><span class="op">]</span>,by<span class="op">=</span><span class="fu">.</span><span class="op">(</span><span class="va">phenotype_id</span>,<span class="va">cs_id</span><span class="op">)</span><span class="op">]</span><span class="op">$</span><span class="va">V1</span><span class="op">]</span></span>
@@ -367,51 +367,55 @@ data, and eQTL data, and finally perform TGVIS:</p>
 <span>          residual_variance<span class="op">=</span><span class="va">fitldsc</span><span class="op">$</span><span class="va">intercept</span><span class="op">)</span> </span>
 <span><span class="va">t2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/difftime.html" class="external-link">difftime</a></span><span class="op">(</span><span class="va">t2</span>, <span class="va">t1</span>, units <span class="op">=</span> <span class="st">"secs"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Time difference of 102.8224 secs</span></span>
-<span><span class="co"># residual_variance is the inflaction factor</span></span>
+<span><span class="co">#&gt; Time difference of 78.77068 secs</span></span>
+<span><span class="co"># residual_variance is the inflation factor</span></span>
 <span><span class="va">fit1</span><span class="op">$</span><span class="va">Summary</span></span>
-<span><span class="co">#&gt;               variable cs   cs.logBF    cs.pratt    cs.pip                xqtl</span></span>
-<span><span class="co">#&gt; 1           rs11591147  1 509.513399 0.462411150 1.0000000          rs11591147</span></span>
-<span><span class="co">#&gt; 2    PCSK9*Whole_Blood  2  87.770503 0.179166944 1.0000000 rs12117661~rs693668</span></span>
-<span><span class="co">#&gt; 3            rs2479404  3  25.889077 0.047629044 0.9998935           rs2479404</span></span>
-<span><span class="co">#&gt; 4            rs2495489  3  25.889077 0.047629044 0.9998935           rs2495489</span></span>
-<span><span class="co">#&gt; 5            rs2495491  3  25.889077 0.047629044 0.9998935           rs2495491</span></span>
-<span><span class="co">#&gt; 6          rs150119739  4  12.995401 0.020812107 0.9999856         rs150119739</span></span>
-<span><span class="co">#&gt; 7           rs11206517  5  12.730242 0.035418442 0.9529990          rs11206517</span></span>
-<span><span class="co">#&gt; 8             rs505151  5  12.730242 0.035418442 0.9529990            rs505151</span></span>
-<span><span class="co">#&gt; 9           rs72911441  5  12.730242 0.035418442 0.9529990          rs72911441</span></span>
-<span><span class="co">#&gt; 10 TMEM59*Artery_Aorta  6  13.431477 0.033762424 0.9999895          rs12732125</span></span>
-<span><span class="co">#&gt; 11     TMEM59*Pancreas  6  13.431477 0.033762424 0.9999895          rs12732125</span></span>
-<span><span class="co">#&gt; 12       TMEM59*Testis  6  13.431477 0.033762424 0.9999895          rs12732125</span></span>
-<span><span class="co">#&gt; 13          rs12732125  6  13.431477 0.033762424 0.9999895          rs12732125</span></span>
-<span><span class="co">#&gt; 14         rs115465289  7   6.489294 0.008102414 0.9837424         rs115465289</span></span>
-<span><span class="co">#&gt; 15           rs2479411  8   7.261498 0.002927722 0.9841316           rs2479411</span></span>
-<span><span class="co">#&gt; 16           rs2495479  8   7.261498 0.002927722 0.9841316           rs2495479</span></span>
-<span><span class="co">#&gt; 17           rs2495480  8   7.261498 0.002927722 0.9841316           rs2495480</span></span>
-<span><span class="co">#&gt; 18           rs2495481  8   7.261498 0.002927722 0.9841316           rs2495481</span></span>
-<span><span class="co">#&gt; 19           rs2495482  8   7.261498 0.002927722 0.9841316           rs2495482</span></span>
-<span><span class="co">#&gt; 20           rs4275490  8   7.261498 0.002927722 0.9841316           rs4275490</span></span>
-<span><span class="co">#&gt;    type    estimate        pip        pratt</span></span>
-<span><span class="co">#&gt; 1   SNP -71.3590248 1.00000000 0.4624111497</span></span>
-<span><span class="co">#&gt; 2  Gene   5.4854726 1.00000000 0.1791669445</span></span>
-<span><span class="co">#&gt; 3   SNP  -7.7554503 0.37601913 0.0178352964</span></span>
-<span><span class="co">#&gt; 4   SNP  -5.9112270 0.28715670 0.0136748475</span></span>
-<span><span class="co">#&gt; 5   SNP  -6.9395350 0.33671763 0.0161189004</span></span>
-<span><span class="co">#&gt; 6   SNP  13.3924307 0.99998556 0.0208121069</span></span>
-<span><span class="co">#&gt; 7   SNP  16.0798824 0.83744389 0.0312175904</span></span>
-<span><span class="co">#&gt; 8   SNP  -1.9671011 0.10371794 0.0037863256</span></span>
-<span><span class="co">#&gt; 9   SNP   0.2191409 0.01183717 0.0004145257</span></span>
-<span><span class="co">#&gt; 10 Gene   4.2205273 0.24999739 0.0084406060</span></span>
-<span><span class="co">#&gt; 11 Gene   2.1536589 0.24999739 0.0084406060</span></span>
-<span><span class="co">#&gt; 12 Gene   3.4831624 0.24999739 0.0084406060</span></span>
-<span><span class="co">#&gt; 13  SNP  -3.1406787 0.24999739 0.0084406060</span></span>
-<span><span class="co">#&gt; 14  SNP -10.3827277 0.98374239 0.0081024141</span></span>
-<span><span class="co">#&gt; 15  SNP  -1.8953990 0.15220679 0.0004395556</span></span>
-<span><span class="co">#&gt; 16  SNP  -1.6333809 0.13147026 0.0003729371</span></span>
-<span><span class="co">#&gt; 17  SNP   1.5374061 0.12385232 0.0003775069</span></span>
-<span><span class="co">#&gt; 18  SNP   2.0241300 0.16185945 0.0005098462</span></span>
-<span><span class="co">#&gt; 19  SNP   2.1639230 0.17275606 0.0005432653</span></span>
-<span><span class="co">#&gt; 20  SNP  -3.0409528 0.24198672 0.0006846112</span></span></code></pre></div>
+<span><span class="co">#&gt;               variable cs  cs.logBF     cs.pratt    cs.pip                xqtl</span></span>
+<span><span class="co">#&gt; 1           rs11591147  1 526.45895 0.4637985077 1.0000000          rs11591147</span></span>
+<span><span class="co">#&gt; 2    PCSK9*Whole_Blood  2 148.86685 0.1835418504 1.0000000 rs12117661~rs693668</span></span>
+<span><span class="co">#&gt; 3           rs11206517  3  26.57738 0.0346402473 0.9581868          rs11206517</span></span>
+<span><span class="co">#&gt; 4             rs505151  3  26.57738 0.0346402473 0.9581868            rs505151</span></span>
+<span><span class="co">#&gt; 5           rs56235208  3  26.57738 0.0346402473 0.9581868          rs56235208</span></span>
+<span><span class="co">#&gt; 6           rs56833376  3  26.57738 0.0346402473 0.9581868          rs56833376</span></span>
+<span><span class="co">#&gt; 7           rs57357765  3  26.57738 0.0346402473 0.9581868          rs57357765</span></span>
+<span><span class="co">#&gt; 8           rs61176209  3  26.57738 0.0346402473 0.9581868          rs61176209</span></span>
+<span><span class="co">#&gt; 9           rs72911441  3  26.57738 0.0346402473 0.9581868          rs72911441</span></span>
+<span><span class="co">#&gt; 10          rs10788994  4  21.50322 0.0343330581 0.9644795          rs10788994</span></span>
+<span><span class="co">#&gt; 11           rs2149041  4  21.50322 0.0343330581 0.9644795           rs2149041</span></span>
+<span><span class="co">#&gt; 12           rs2182833  4  21.50322 0.0343330581 0.9644795           rs2182833</span></span>
+<span><span class="co">#&gt; 13           rs7523141  4  21.50322 0.0343330581 0.9644795           rs7523141</span></span>
+<span><span class="co">#&gt; 14           rs7525649  4  21.50322 0.0343330581 0.9644795           rs7525649</span></span>
+<span><span class="co">#&gt; 15         rs150119739  5  10.35912 0.0185416620 0.9999868         rs150119739</span></span>
+<span><span class="co">#&gt; 16         rs115465289  6  11.00884 0.0095285004 0.9999070         rs115465289</span></span>
+<span><span class="co">#&gt; 17 TMEM59*Artery_Aorta  7  13.12900 0.0339295129 0.9999447          rs12732125</span></span>
+<span><span class="co">#&gt; 18     TMEM59*Pancreas  7  13.12900 0.0339295129 0.9999447          rs12732125</span></span>
+<span><span class="co">#&gt; 19       TMEM59*Testis  7  13.12900 0.0339295129 0.9999447          rs12732125</span></span>
+<span><span class="co">#&gt; 20          rs12732125  7  13.12900 0.0339295129 0.9999447          rs12732125</span></span>
+<span><span class="co">#&gt; 21          rs12130799  8   8.20293 0.0002209052 0.9803997          rs12130799</span></span>
+<span><span class="co">#&gt; 22          rs12138592  8   8.20293 0.0002209052 0.9803997          rs12138592</span></span>
+<span><span class="co">#&gt;    type    estimate        pip         pratt</span></span>
+<span><span class="co">#&gt; 1   SNP -71.5731211 1.00000000  4.637985e-01</span></span>
+<span><span class="co">#&gt; 2  Gene   5.6194171 1.00000000  1.835419e-01</span></span>
+<span><span class="co">#&gt; 3   SNP  13.8440065 0.73741272  2.687685e-02</span></span>
+<span><span class="co">#&gt; 4   SNP  -2.0304623 0.10959002  3.908285e-03</span></span>
+<span><span class="co">#&gt; 5   SNP   0.5140957 0.02802389  9.642313e-04</span></span>
+<span><span class="co">#&gt; 6   SNP   0.3211123 0.01756388  6.126313e-04</span></span>
+<span><span class="co">#&gt; 7   SNP   0.3211123 0.01756388  6.120279e-04</span></span>
+<span><span class="co">#&gt; 8   SNP   0.3463253 0.01893272  6.562317e-04</span></span>
+<span><span class="co">#&gt; 9   SNP   0.5339378 0.02909966  1.009994e-03</span></span>
+<span><span class="co">#&gt; 10  SNP   2.9033084 0.18151004  6.474747e-03</span></span>
+<span><span class="co">#&gt; 11  SNP   3.8421462 0.23960357  8.483461e-03</span></span>
+<span><span class="co">#&gt; 12  SNP   4.3280528 0.26967707  9.625061e-03</span></span>
+<span><span class="co">#&gt; 13  SNP   0.9181699 0.05799344  2.071496e-03</span></span>
+<span><span class="co">#&gt; 14  SNP   3.4550155 0.21569539  7.678292e-03</span></span>
+<span><span class="co">#&gt; 15  SNP  11.9314169 0.99998684  1.854166e-02</span></span>
+<span><span class="co">#&gt; 16  SNP -12.2101665 0.99990699  9.528500e-03</span></span>
+<span><span class="co">#&gt; 17 Gene   4.2414145 0.24998618  8.482378e-03</span></span>
+<span><span class="co">#&gt; 18 Gene   2.1643172 0.24998618  8.482378e-03</span></span>
+<span><span class="co">#&gt; 19 Gene   3.5004004 0.24998618  8.482378e-03</span></span>
+<span><span class="co">#&gt; 20  SNP  -3.1562218 0.24998618  8.482378e-03</span></span>
+<span><span class="co">#&gt; 21  SNP  -4.9935281 0.45271673  2.398341e-04</span></span>
+<span><span class="co">#&gt; 22  SNP  -5.8360302 0.52768302 -1.892889e-05</span></span></code></pre></div>
 <p>From the results, we can see that TGVIS first identified a missense
 variant in PCSK9, rs11591147, with a Pratt index of 0.462. This SNP is
 the PCSK9 variant initially reported by <a href="https://www.nejm.org/doi/full/10.1056/NEJMc0707445" class="external-link">NEJM</a>.
@@ -445,6 +449,60 @@ the same pair can appear in the plot. This does not mean there are
 multiple genes, but rather multiple xQTLs associated with one
 gene–tissue pair. Only variants or gene–tissue pairs with cs.pratt
 values exceeding the threshold are annotated.</p>
+</div>
+<div class="section level2">
+<h2 id="tgvis-with-adaptively-estimated-infinitesimal-effects">TGVIS with Adaptively Estimated Infinitesimal Effects<a class="anchor" aria-label="anchor" href="#tgvis-with-adaptively-estimated-infinitesimal-effects"></a>
+</h2>
+<p>TGVIS also supports adaptive estimation of infinitesimal effects
+using variants within a locus. Although this may require additional
+computational time, it serves as a useful alternative to fixing the
+variance of the infinitesimal effect at the per-SNP heritability
+estimate obtained from LDSC.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">t1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">fit2</span><span class="op">=</span><span class="fu"><a href="../reference/tgvis.html">tgvis</a></span><span class="op">(</span>estimate_inf<span class="op">=</span><span class="cn">T</span>,by<span class="op">=</span><span class="va">by</span>,bXest<span class="op">=</span><span class="va">bXest</span>,LD<span class="op">=</span><span class="va">R</span>,L_vec<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span>,</span>
+<span>          Noutcome<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">LDL_Locus</span><span class="op">$</span><span class="va">N</span><span class="op">)</span><span class="op">)</span> </span>
+<span><span class="co"># Set small number of candidate L to reduce the computational time</span></span>
+<span><span class="co"># Set estimate_inf=T to estimate the infinitesimal effect adaptively</span></span>
+<span><span class="co"># Please remove var_inf and residual_variance two parameters.</span></span>
+<span><span class="va">t2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/difftime.html" class="external-link">difftime</a></span><span class="op">(</span><span class="va">t2</span>, <span class="va">t1</span>, units <span class="op">=</span> <span class="st">"secs"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Time difference of 10598.51 secs</span></span>
+<span><span class="va">fit2</span><span class="op">$</span><span class="va">Summary</span></span>
+<span><span class="co">#&gt;               variable cs   cs.logBF    cs.pratt    cs.pip                xqtl</span></span>
+<span><span class="co">#&gt; 1           rs11591147  1 1028.55682 0.447243760 1.0000000          rs11591147</span></span>
+<span><span class="co">#&gt; 2    PCSK9*Whole_Blood  2  409.95785 0.191978807 1.0000000 rs12117661~rs693668</span></span>
+<span><span class="co">#&gt; 3           rs10788994  4   77.01882 0.043157862 0.9980191          rs10788994</span></span>
+<span><span class="co">#&gt; 4            rs2182833  4   77.01882 0.043157862 0.9980191           rs2182833</span></span>
+<span><span class="co">#&gt; 5            rs7525649  4   77.01882 0.043157862 0.9980191           rs7525649</span></span>
+<span><span class="co">#&gt; 6          rs115465289  5   34.71275 0.010538706 1.0000000         rs115465289</span></span>
+<span><span class="co">#&gt; 7          rs150119739  6   28.14479 0.019113316 1.0000000         rs150119739</span></span>
+<span><span class="co">#&gt; 8             rs593398  7   88.84070 0.003535109 1.0000000            rs593398</span></span>
+<span><span class="co">#&gt; 9  TMEM59*Artery_Aorta  8   21.92417 0.028793107 1.0000000          rs12732125</span></span>
+<span><span class="co">#&gt; 10     TMEM59*Pancreas  8   21.92417 0.028793107 1.0000000          rs12732125</span></span>
+<span><span class="co">#&gt; 11       TMEM59*Testis  8   21.92417 0.028793107 1.0000000          rs12732125</span></span>
+<span><span class="co">#&gt;    type   estimate        pip       pratt</span></span>
+<span><span class="co">#&gt; 1   SNP -69.018402 1.00000000 0.447243760</span></span>
+<span><span class="co">#&gt; 2  Gene   5.877728 1.00000000 0.191978807</span></span>
+<span><span class="co">#&gt; 3   SNP  16.854807 0.86809172 0.037588365</span></span>
+<span><span class="co">#&gt; 4   SNP   0.955309 0.04957734 0.002124491</span></span>
+<span><span class="co">#&gt; 5   SNP   1.550156 0.08034999 0.003445006</span></span>
+<span><span class="co">#&gt; 6   SNP -13.504681 1.00000000 0.010538706</span></span>
+<span><span class="co">#&gt; 7   SNP  12.299272 1.00000000 0.019113316</span></span>
+<span><span class="co">#&gt; 8   SNP -20.838463 1.00000000 0.003535109</span></span>
+<span><span class="co">#&gt; 9  Gene   4.799106 0.33333333 0.009597702</span></span>
+<span><span class="co">#&gt; 10 Gene   2.448897 0.33333333 0.009597702</span></span>
+<span><span class="co">#&gt; 11 Gene   3.960658 0.33333333 0.009597702</span></span></code></pre></div>
+<p>In our experience, setting <code>estimate_inf = TRUE</code> can be
+computationally intensive for loci with strong genetic associations,
+such as the PCSK9 locus for LDL-C and the CETP locus for HDL-C.
+Importantly, however, the choice between
+<code>estimate_inf = TRUE</code> and <code>FALSE</code> has negligible
+impact on results at such loci, because the dominant fine-mapping
+signals overwhelm any infinitesimal effect. For loci with weak or
+moderate genetic associations, the running time is typically within 10
+minutes, and the two settings may yield different results. We therefore
+recommend running both as a robustness check for weaker loci.</p>
 </div>
 <div class="section level2">
 <h2 id="caveat-the-use-of-pratt-index">Caveat: the use of Pratt index<a class="anchor" aria-label="anchor" href="#caveat-the-use-of-pratt-index"></a>
