@@ -537,12 +537,12 @@ A
 } else {
 if (!quiet) message("No direct causal variant or gene–tissue pair identified.")
 return(data.frame(
-Variable = character(0),
+variable = character(0),
 cs       = numeric(0),
 cs.pip   = numeric(0),
 cs.pratt = numeric(0),
-xQTL     = character(0),
-Type     = character(0),
+xqtl     = character(0),
+type     = character(0),
 estimate = numeric(0),
 pip      = numeric(0),
 pratt    = numeric(0),

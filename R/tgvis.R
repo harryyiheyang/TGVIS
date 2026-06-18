@@ -224,7 +224,7 @@ A=list(theta=theta,gamma=gamma,theta.pip=theta.pip,gamma.pip=gamma.pip,theta.pra
 Asummary=summary.tgvis(fit=A,bXest=bXest)
 A$Summary=Asummary
 bb <- summary(fit.causal)$cs
-Asummary$cs.logBF <- NA_real_
+Asummary$cs.logBF <- rep(NA_real_, nrow(Asummary))
 if (!is.null(bb) && "cs" %in% names(bb) && "cs_log10bf" %in% names(bb)) {
   for (i in seq_len(nrow(Asummary))) {
     cs_i <- Asummary$cs[i]
@@ -239,7 +239,7 @@ Asummary=Asummary[,need_cols]
 A$Summary=Asummary
 return(A)
 }else{
-A=tgvis_fast(by,bXest,LD,Lvec=L_vec,n_outcome=Noutcome,var_inf=var_inf,eigen_thres=eigen_thres,pip_thres_cred=pip_thres_cred,susie_iter=susie_iter,estimate_residual_variance=estimate_residual_variance,scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance,prior_weight_theta=prior_weight_theta,prior_weight_gamma=prior_weight_gamma,ebic_factor=ebic_beta)
+A=tgvis_fast(by,bXest,LD,Lvec=L_vec,n_outcome=Noutcome,var_inf=var_inf,eigen_thres=eigen_thres,pip_thres_cred=pip_thres_cred,susie_iter=susie_iter,estimate_residual_variance=estimate_residual_variance,scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance,prior_weight_theta=prior_weight_theta,prior_weight_gamma=prior_weight_gamma,ebic_factor=ebic_beta,pleiotropy_rm=pleiotropy_rm)
 return(A)
 }
 }
