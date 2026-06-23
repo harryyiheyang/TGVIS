@@ -287,7 +287,7 @@ return(K)
 #' @export
 findUniqueNonZeroRows=function(bXest) {
 M=bXest
-nonZeroCounts <- colSums(M != 0)
+nonZeroCounts <- Matrix::colSums(M != 0)
 uniqueCols <- which(nonZeroCounts == 1)
 if(length(uniqueCols) == 0) {
 uniqueRows=NULL
@@ -296,7 +296,7 @@ if(length(uniqueCols)==1){
 uniqueRows=which(M[,uniqueCols]!=0)
 }
 if(length(uniqueCols)>1){
-nonZeroCounts=rowSums(M[,uniqueCols]!=0)
+nonZeroCounts=Matrix::rowSums(M[,uniqueCols,drop=FALSE]!=0)
 uniqueRows <- unique(which(nonZeroCounts>0))
 }
 return(uniqueRows)
@@ -424,6 +424,95 @@ warning("No index found where cumulative variance exceeds threshold")
 return(length(eigenvalues))
 }
 return(idx)
+}
+
+tgvis_susie_init_for_L <- function(fit, L, nvar, scaled_prior_variance = 0.5,
+                                   estimate_residual_variance = FALSE) {
+if (is.null(fit) || !inherits(fit, "susie") || is.null(fit$alpha) ||
+    is.null(fit$mu) || is.null(fit$mu2)) {
+return(NULL)
+}
+if (!is.matrix(fit$alpha) || !is.matrix(fit$mu) || !is.matrix(fit$mu2)) {
+return(NULL)
+}
+if (ncol(fit$alpha) != nvar || !all(dim(fit$mu) == dim(fit$alpha)) ||
+    !all(dim(fit$mu2) == dim(fit$alpha))) {
+return(NULL)
+}
+oldL <- nrow(fit$alpha)
+L <- max(1, as.integer(L))
+if (oldL > L) {
+return(NULL)
+}
+pad <- L - oldL
+rank <- seq_len(oldL)
+if (pad > 0) {
+cs_index <- tryCatch(fit$sets$cs_index, error = function(e) NULL)
+if (!is.null(cs_index)) {
+cs_index <- unique(cs_index[cs_index >= 1 & cs_index <= oldL])
+rank <- c(cs_index, setdiff(seq_len(oldL), cs_index))
+}
+}
+alpha <- fit$alpha[rank, , drop = FALSE]
+mu <- fit$mu[rank, , drop = FALSE]
+mu2 <- fit$mu2[rank, , drop = FALSE]
+if (pad > 0) {
+alpha <- rbind(alpha, matrix(1 / nvar, pad, nvar))
+mu <- rbind(mu, matrix(0, pad, nvar))
+mu2 <- rbind(mu2, matrix(0, pad, nvar))
+}
+if (length(scaled_prior_variance) == 1) {
+V <- rep(scaled_prior_variance, L)
+} else {
+V <- rep(scaled_prior_variance, length.out = L)
+}
+if (!is.null(fit$V) && length(fit$V) == oldL && all(is.finite(fit$V))) {
+V[seq_len(oldL)] <- fit$V[rank]
+}
+init <- list(alpha = alpha, mu = mu, mu2 = mu2, V = V)
+if (isTRUE(estimate_residual_variance) && !is.null(fit$sigma2) &&
+    length(fit$sigma2) == 1 && is.finite(fit$sigma2)) {
+init$sigma2 <- fit$sigma2
+}
+if (any(!is.finite(init$alpha)) || any(!is.finite(init$mu)) ||
+    any(!is.finite(init$mu2)) || any(!is.finite(init$V))) {
+return(NULL)
+}
+class(init) <- "susie"
+return(init)
+}
+
+tgvis_eta_from_beta <- function(bXest, beta, p, pleiotropy.keep) {
+eta <- as.numeric(bXest %*% beta[seq_len(p)])
+if (length(pleiotropy.keep) > 0) {
+eta[pleiotropy.keep] <- eta[pleiotropy.keep] + beta[-seq_len(p)]
+}
+return(eta)
+}
+
+tgvis_inf_test_eigen <- function(res.inf, D, UA = NULL) {
+u <- sum(res.inf^2) / 2
+if (is.null(UA) || ncol(as.matrix(UA)) == 0) {
+e <- sum(D) / 2
+h <- sum(D^2) / 2
+} else {
+UA <- as.matrix(UA)
+AtVA <- crossprod(UA, UA * (1 / D))
+M <- matrixGeneralizedInverse(AtVA)
+G <- crossprod(UA)
+H <- crossprod(UA, UA * D)
+MG <- matrixMultiply(M, G)
+e <- (sum(D) - sum(diag(MG))) / 2
+h <- (sum(D^2) - 2 * sum(diag(matrixMultiply(M, H))) +
+        sum(diag(matrixMultiply(MG, MG)))) / 2
+}
+if (!is.finite(e) || !is.finite(h) || e <= 0 || h <= 0 || u < 0) {
+return(1)
+}
+kappa <- h / 2 / e
+v <- 2 * e^2 / h
+pv <- pchisq(u / kappa, v, lower.tail = FALSE)
+return(pv)
 }
 
 prattestimation_theta=function(by,bXest,LD,Theta,theta){

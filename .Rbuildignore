@@ -4,5 +4,6 @@
 ^docs$
 ^pkgdown$
 ^\.github$
+^\.git$
 ^doc$
 ^Meta$

@@ -95,7 +95,7 @@ Xadjusti=diag(XtX)
 XtX=cov2cor(XtX)
 XtX=(t(XtX)+XtX)/2
 XtyZ=Xty/sqrt(Xadjusti)
-fit.causali = susie_rss(z=XtyZ,R=XtX,n=Nvec[1],L=L_causal,estimate_prior_method="EM",s_init=fit.causal,prior_weights=prior_weights,intercept=F,max_iter=10)
+fit.causali = susie_rss(z=XtyZ,R=XtX,n=Nvec[1],L=L_causal,estimate_prior_method="EM",model_init=fit.causal,prior_weights=prior_weights,intercept=F,max_iter=10)
 AA[i,] = fit.causali$pip
 AB[i,] = coef.susie(fit.causali)[-1]
 }

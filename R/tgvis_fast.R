@@ -1,5 +1,6 @@
 tgvis_fast=function(by,bXest,LD,Lvec=c(1:8),n_outcome,var_inf=0.15/1e6,eigen_thres=0.999,pip_thres_cred=0.95,susie_iter=500,estimate_residual_variance=F,scaled_prior_variance=0.5,residual_variance=1,prior_weight_theta=NULL,prior_weight_gamma=NULL,ebic_factor=1,pleiotropy_rm=NULL){
 ######################### basic infromation ####################################
+Lvec=sort(Lvec)
 m=length(by)
 p=ncol(bXest)
 if(is.null(pleiotropy_rm)==T){
@@ -15,12 +16,18 @@ stopifnot("LD region is too small. Try other methods like Mendelian randomizatio
 U=fiteigen$vectors[,1:idx]
 D=fiteigen$values[1:idx]
 lambda=n_outcome*var_inf
-Theta=matrixMultiply(U,t(U)*(1/(residual_variance*D+lambda*D^2)))
-Theta_Pratt=matrixMultiply(U,t(U)*(1/D))
+theta_weight=1/(residual_variance*D+lambda*D^2)
+pratt_weight=1/D
 ###################### XtX, Xty, and yty #######################################
-XR=as.matrix(cbind(LD%*%bXest,LD[,pleiotropy.keep,drop=FALSE]))
-XRinv=matrixMultiply(t(XR),Theta)
-XtX=matrixMultiply(XRinv,XR)
+UXtheta=as.matrix(crossprod(U,bXest))*D
+if(length(pleiotropy.keep)>0){
+UXgamma=t(U[pleiotropy.keep,,drop=FALSE])*D
+}else{
+UXgamma=matrix(0,nrow=idx,ncol=0)
+}
+UXR=as.matrix(cbind(UXtheta,UXgamma))
+Uy=as.numeric(crossprod(U,by))
+XtX=matrixMultiply(t(UXR),UXR*theta_weight)
 dXtX <- diag(XtX)
 dXtX[is.na(dXtX)] <- 1
 dXtX[dXtX == 0] <- 1
@@ -29,8 +36,9 @@ diag(XtX) <- dXtX
 XtXadjust=diag(XtX)
 XtX <- cov2cor(XtX)
 XtX=(t(XtX)+XtX)/2
-Xty=matrixVectorMultiply(XRinv,by)
+Xty=matrixVectorMultiply(t(UXR),Uy*theta_weight)
 Xty=Xty/sqrt(XtXadjust)
+pratt_vary=sum(Uy^2*pratt_weight)
 ############################## fit SuSiE #######################################
 if(is.null(prior_weight_gamma)==T){
 if(length(pleiotropy.keep)>0){
@@ -46,15 +54,30 @@ prior_weight_theta=rep(1/p,p)
 }
 prior_weights=c(prior_weight_theta,prior_weight_gamma)
 Bicvec=Lvec
+fit.store=vector("list",length(Lvec))
+fit.prev=NULL
 for(i in 1:length(Lvec)){
-fiti=susie_rss(z=Xty,R=XtX,n=n_outcome,L=Lvec[i],residual_variance=1,estimate_residual_variance=estimate_residual_variance,estimate_prior_method="EM",max_iter=susie_iter)
+fit.init=tgvis_susie_init_for_L(fit.prev,Lvec[i],ncol(XtX),
+                                scaled_prior_variance=scaled_prior_variance,
+                                estimate_residual_variance=estimate_residual_variance)
+fiti=susie_rss(z=Xty,R=XtX,n=n_outcome,L=Lvec[i],residual_variance=residual_variance,estimate_residual_variance=estimate_residual_variance,estimate_prior_method="EM",max_iter=susie_iter,model_init=fit.init)
 theta=coef(fiti)[-1]*sqrt(n_outcome)/sqrt(XtXadjust)
-res=by-matrixVectorMultiply(XR,theta)
-rss=sum(res*matrixVectorMultiply(Theta,res))
+fitted=as.numeric(bXest%*%theta[1:p])
+if(length(pleiotropy.keep)>0){
+fitted[pleiotropy.keep]=fitted[pleiotropy.keep]+theta[-c(1:p)]
+}
+res=by-matrixVectorMultiply(LD,fitted)
+Ures=as.numeric(crossprod(U,res))
+rss=sum(Ures^2*theta_weight)
 Bicvec[i]=log(rss)+(log(idx)+log(ncol(XtX))*ebic_factor)/idx*Lvec[i]
+fit.store[[i]]=fiti
+fit.prev=fiti
 }
 istar=which.min(Bicvec)
-fit.causal=susie_rss(z=Xty,R=XtX,n=n_outcome,L=Lvec[istar],residual_variance=1,estimate_residual_variance=estimate_residual_variance,estimate_prior_method="EM",max_iter=susie_iter)
+fit.init=tgvis_susie_init_for_L(fit.store[[istar]],Lvec[istar],ncol(XtX),
+                                scaled_prior_variance=scaled_prior_variance,
+                                estimate_residual_variance=estimate_residual_variance)
+fit.causal=susie_rss(z=Xty,R=XtX,n=n_outcome,L=Lvec[istar],residual_variance=residual_variance,estimate_residual_variance=estimate_residual_variance,estimate_prior_method="EM",max_iter=susie_iter,model_init=fit.init)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip_thres_cred)
 pip.alive=causal.cs$ind.keep
 if(length(pip.alive)>0){
@@ -74,8 +97,10 @@ theta.cs.pip=gammatheta.cs.pip[1:p]
 gamma.cs=gamma.cs.pip=gamma*0
 gamma.cs[pleiotropy.keep]=gammatheta.cs[-c(1:p)]
 gamma.cs.pip[pleiotropy.keep]=gammatheta.cs.pip[-c(1:p)]
-gamma.pratt=prattestimation_gamma(by=by,LD=LD,Theta=Theta_Pratt,gamma=gamma)
-theta.pratt=prattestimation_theta(by=by,bXest=bXest,LD=LD,Theta=Theta_Pratt,theta=theta)
+gamma.pratt=by*gamma/pratt_vary
+theta.pratt=as.numeric(crossprod(bXest,by))*theta/pratt_vary
+gamma.pratt[is.na(gamma.pratt)]=0
+theta.pratt[is.na(theta.pratt)]=0
 names(theta)=names(theta.pip)=colnames(bXest)
 names(gamma)=names(gamma.pip)=rownames(bXest)
 }else{

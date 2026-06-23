@@ -57,6 +57,7 @@ tgvis=function(estimate_inf=F,by,bXest,LD,Noutcome,L_vec=c(1:8),
                eigen_thres=0.999,varinf_upper_boundary=0.25,varinf_lower_boundary=0.001,
                ebic_beta=1,ebic_upsilon=1,pip_min=0.05,pv_thres=0.05,pleiotropy_rm=NULL,
                prior_weight_theta=NULL,prior_weight_gamma=NULL,standization=T){
+L_vec=sort(L_vec)
 if(estimate_inf==T){
 ############################## Preparing the data ##############################
 n=length(by);p=dim(bXest)[2]
@@ -64,6 +65,7 @@ if(is.null(pleiotropy_rm)==T){
 pleiotropy_rm=findUniqueNonZeroRows(bXest)
 }
 pleiotropy.keep=setdiff(1:n,pleiotropy_rm)
+bXest=Matrix(bXest,sparse=T)
 fiteigen=matrixEigen(LD)
 idx=find_cumvar_index(fiteigen$values,thres=eigen_thres)
 if(idx<2){
@@ -71,12 +73,17 @@ stopifnot("LD region is too small. Try other methods like Mendelian randomizatio
 }
 Umat=fiteigen$vectors[,1:idx]
 Dvec=fiteigen$values[1:idx]
-Theta=matrixMultiply(Umat,t(Umat)*(1/Dvec))
-LD2=matrixMultiply(Umat,t(Umat)*(Dvec^2))
-varinf_upper_boundary=varinf_upper_boundary*sum(by*(Theta%*%by))/idx
-XR=cbind(matrixMultiply(LD,bXest),LD[,pleiotropy.keep])
-XRinv=matrixMultiply(t(XR),Theta)
-XtX=matrixMultiply(XRinv,XR)
+Uy=as.numeric(crossprod(Umat,by))
+pratt_vary=sum(Uy^2/Dvec)
+varinf_upper_boundary=varinf_upper_boundary*pratt_vary/idx
+UXtheta=as.matrix(crossprod(Umat,bXest))*Dvec
+if(length(pleiotropy.keep)>0){
+UXgamma=t(Umat[pleiotropy.keep,,drop=FALSE])*Dvec
+}else{
+UXgamma=matrix(0,nrow=idx,ncol=0)
+}
+UXR=as.matrix(cbind(UXtheta,UXgamma))
+XtX=matrixMultiply(t(UXR),UXR*(1/Dvec))
 dXtX <- diag(XtX)
 dXtX[is.na(dXtX)] <- 1
 dXtX[dXtX == 0] <- 1
@@ -96,19 +103,32 @@ prior_weight_gamma=prior_weight_gamma[pleiotropy.keep]
 prior_weights=c(prior_weight_theta,prior_weight_gamma)
 ########################### Selecting the number of single effects ##############################
 Bicvec=L_vec
+fit.store=vector("list",length(L_vec))
+beta.store=vector("list",length(L_vec))
+upsilon.store=vector("list",length(L_vec))
+varinf.store=rep(NA_real_,length(L_vec))
+fit.prev=NULL
+beta.prev=NULL
+upsilon.prev=NULL
+varinf.prev=NA_real_
 for(i in 1:length(L_vec)){
-upsilon=0*by
-varinf=1
+L.current=max(1,L_vec[i])
+upsilon=if(is.null(upsilon.prev)) 0*by else upsilon.prev
+varinf=if(is.finite(varinf.prev)) varinf.prev else 1
 iter=0
 error=1
-beta=XR[1,]
-fit.causal=NULL
+beta=if(is.null(beta.prev)) rep(0,ncol(XtX)) else beta.prev
+fit.causal=tgvis_susie_init_for_L(fit.prev,L.current,ncol(XtX),
+                                  scaled_prior_variance=scaled_prior_variance,
+                                  estimate_residual_variance=estimate_residual_variance)
+Hinv=1/(Dvec+1/varinf)
 while(error>max_eps&iter<max_iter){
 beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
-Xty=c(t(bXest)%*%res.beta,res.beta[pleiotropy.keep])
+Xty=c(as.numeric(crossprod(bXest,res.beta)),
+      if(length(pleiotropy.keep)>0) res.beta[pleiotropy.keep] else numeric(0))
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L_vec[i]),
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=L.current,
                      estimate_prior_method="EM",max_iter=susie_iter,intercept=F,
                      standardize=standization,prior_weights=prior_weights,
                      model_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
@@ -118,11 +138,17 @@ beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 ############# We remove the variants in the 95% credible sets with small PIP #######################
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip_min)
 pip.alive=causal.cs$ind.keep
+if(length(pip.alive)>0){
 beta[-pip.alive]=0
-res.upsilon=by-matrixVectorMultiply(XR,beta)
-outcome=matrixVectorMultiply(t(Umat),res.upsilon)
+}else{
+beta[]=0
+}
+eta.beta=tgvis_eta_from_beta(bXest,beta,p,pleiotropy.keep)
+res.upsilon=by-matrixVectorMultiply(LD,eta.beta)
+outcome=as.numeric(crossprod(Umat,res.upsilon))
 ########### Performing Score test to pre-remoing infinitesimal effect in each step ###################
-pv=inf.test(res.inf=res.upsilon,LD=LD,LD2=LD2,Theta=Theta,A=XR[,which(fit.causal$pip>pip_min)])
+active=which(fit.causal$pip>pip_min)
+pv=tgvis_inf_test_eigen(res.inf=res.upsilon,D=Dvec,UA=UXR[,active,drop=FALSE])
 ######################## Performing REML ###############################
 upsilon=by*0
 if(pv<pv_thres|iter<5){
@@ -142,23 +168,39 @@ error=norm(beta-beta1,"2")/sqrt(length(beta))
 iter=iter+1
 }
 df=sum(Dvec*Hinv)*ifelse(sum(abs(upsilon))==0,0,1)
-res=by-matrixVectorMultiply(XR,beta)-matrixVectorMultiply(LD,upsilon)
-rss=sum(res*matrixVectorMultiply(Theta,res))
+eta.beta=tgvis_eta_from_beta(bXest,beta,p,pleiotropy.keep)
+res=by-matrixVectorMultiply(LD,eta.beta+upsilon)
+Ures=as.numeric(crossprod(Umat,res))
+rss=sum(Ures^2/Dvec)
 Bicvec[i]=log(rss)+(log(idx)+ebic_beta*log(dim(XtX)[1]))/idx*L_vec[i]+(ebic_upsilon*log(idx)+log(idx))/idx*df
+fit.store[[i]]=fit.causal
+beta.store[[i]]=beta
+upsilon.store[[i]]=upsilon
+varinf.store[i]=varinf
+fit.prev=fit.causal
+beta.prev=beta
+upsilon.prev=upsilon
+varinf.prev=varinf
 }
 ################### Reestimating using optimal number of single effect #####################
 istar=which.min(Bicvec)
-upsilon=0*by
-varinf=1
+L.best=max(1,L_vec[istar])
+upsilon=if(is.null(upsilon.store[[istar]])) 0*by else upsilon.store[[istar]]
+varinf=if(is.finite(varinf.store[istar])) varinf.store[istar] else 1
 iter=0
 error=1
-fit.causal=NULL
+beta=if(is.null(beta.store[[istar]])) rep(0,ncol(XtX)) else beta.store[[istar]]
+fit.causal=tgvis_susie_init_for_L(fit.store[[istar]],L.best,ncol(XtX),
+                                  scaled_prior_variance=scaled_prior_variance,
+                                  estimate_residual_variance=estimate_residual_variance)
+Hinv=1/(Dvec+1/varinf)
 while(error>max_eps&iter<max_iter){
 beta1=beta
 res.beta=by-matrixVectorMultiply(LD,upsilon)
-Xty=c(matrixVectorMultiply(t(bXest),res.beta),res.beta[pleiotropy.keep])
+Xty=c(as.numeric(crossprod(bXest,res.beta)),
+      if(length(pleiotropy.keep)>0) res.beta[pleiotropy.keep] else numeric(0))
 XtyZ=Xty/sqrt(XtXadjust)
-fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L_vec[istar]),
+fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=L.best,
                      estimate_prior_method="EM",max_iter=susie_iter,intercept=F,
                      standardize=standization,prior_weights=prior_weights,
                      model_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
@@ -166,10 +208,16 @@ fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=max(1,L_vec[istar]),
 beta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip_min)
 pip.alive=causal.cs$ind.keep
+if(length(pip.alive)>0){
 beta[-pip.alive]=0
-res.upsilon=by-matrixVectorMultiply(XR,beta)
-outcome=matrixVectorMultiply(t(Umat),res.upsilon)
-pv=inf.test(res.inf=res.upsilon,LD=LD,LD2=LD2,Theta=Theta,A=XR[,which(fit.causal$pip>pip_min)])
+}else{
+beta[]=0
+}
+eta.beta=tgvis_eta_from_beta(bXest,beta,p,pleiotropy.keep)
+res.upsilon=by-matrixVectorMultiply(LD,eta.beta)
+outcome=as.numeric(crossprod(Umat,res.upsilon))
+active=which(fit.causal$pip>pip_min)
+pv=tgvis_inf_test_eigen(res.inf=res.upsilon,D=Dvec,UA=UXR[,active,drop=FALSE])
 upsilon=by*0
 if(pv<pv_thres|iter<5){
 for(ii in 1:10){
@@ -197,7 +245,7 @@ if(length(pip.alive)>0){
 pip.remove=setdiff(1:ncol(XtX),pip.alive)
 gammatheta=coef.susie(fit.causal)[-1]*sqrt(Noutcome)/sqrt(XtXadjust)
 gammatheta[pip.remove]=0
-gamma=LD[,1]*0
+gamma=rep(0,n)
 gamma[pleiotropy.keep]=gammatheta[-c(1:p)]
 theta=gammatheta[1:p]
 gamma.pip=gamma*0
@@ -210,8 +258,10 @@ theta.cs.pip=gammatheta.cs.pip[1:p]
 gamma.cs=gamma.cs.pip=gamma*0
 gamma.cs[pleiotropy.keep]=gammatheta.cs[-c(1:p)]
 gamma.cs.pip[pleiotropy.keep]=gammatheta.cs.pip[-c(1:p)]
-gamma.pratt=prattestimation_gamma(by=by,LD=LD,Theta=Theta,gamma=gamma)
-theta.pratt=prattestimation_theta(by=by,bXest=bXest,LD=LD,Theta=Theta,theta=theta)
+gamma.pratt=by*gamma/pratt_vary
+theta.pratt=as.numeric(crossprod(bXest,by))*theta/pratt_vary
+gamma.pratt[is.na(gamma.pratt)]=0
+theta.pratt[is.na(theta.pratt)]=0
 names(theta)=names(theta.pip)=colnames(bXest)
 names(gamma)=names(gamma.pip)=rownames(bXest)
 }else{
