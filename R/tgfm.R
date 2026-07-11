@@ -25,7 +25,7 @@ indx <- which(bX[,i] != 0)
 eQTLList[[i]]=list(alpha=matrix(0.5,1,p),mu=matrix(0,1,p),mu2=matrix(1,1,p),index.causal=1,indx=indx)
 tryCatch({
 a <- LD[indx, indx]
-fit <- susie_rss(z = bX[indx, i], R = a, n = Nvec[i + 1], L = L.eqtl,  estimate_prior_method="EM")
+fit <- susie_rss(z = bX[indx, i], R = a, n = Nvec[i + 1], L = L.eqtl,  estimate_prior_method="optim")
 ####################### We don't consider the credible set including too many variables ################
 index.causal = intersect(unique(susie_get_cs_index(fit)),which(fit$pip>eqtl_thres))
 eQTLList[[i]]=list(alpha=fit$alpha,mu=fit$mu,mu2=fit$mu2,index.causal=index.causal,indx=indx)
@@ -79,7 +79,7 @@ XtyZ=Xty/sqrt(Xadjust)
 prior.weight.theta=rep(1/p,p)
 prior.weight.gamma=rep(1/n,n)
 prior_weights=c(prior.weight.theta,prior.weight.gamma)
-fit.causal = susie_rss(z=XtyZ,R=XtX,n=Nvec[1], L = L_causal, residual_variance = 1, estimate_prior_method="EM", prior_weights=prior_weights, intercept=F,max_iter=susie_iter)
+fit.causal = susie_rss(z=XtyZ,R=XtX,n=Nvec[1], L = L_causal, residual_variance = 1, estimate_prior_method="optim", prior_weights=prior_weights, intercept=F,max_iter=susie_iter)
 ############################# The second resmaping step ##################################
 AA = AB = matrix(0, causal_sampling_time,n+p)
 for (i in 1:causal_sampling_time) {
@@ -95,7 +95,7 @@ Xadjusti=diag(XtX)
 XtX=cov2cor(XtX)
 XtX=(t(XtX)+XtX)/2
 XtyZ=Xty/sqrt(Xadjusti)
-fit.causali = susie_rss(z=XtyZ,R=XtX,n=Nvec[1],L=L_causal,estimate_prior_method="EM",model_init=fit.causal,prior_weights=prior_weights,intercept=F,max_iter=10)
+fit.causali = susie_rss(z=XtyZ,R=XtX,n=Nvec[1],L=L_causal,estimate_prior_method="optim",model_init=fit.causal,prior_weights=prior_weights,intercept=F,max_iter=10)
 AA[i,] = fit.causali$pip
 AB[i,] = coef.susie(fit.causali)[-1]
 }

@@ -37,7 +37,7 @@ prior.weight.theta <- rep(1 / p, p)
 prior.weight.gamma <- rep(1 / n, n)
 prior_weights <- c(prior.weight.theta, prior.weight.gamma)
 ####################################### Performing SuSiE ##############################################################
-fit.causal <- susie_rss(z = XtyZ, R = XtX, n = Noutcome, L = L_causal, residual_variance = 1, estimate_prior_method = "EM", prior_weights = prior_weights, intercept = FALSE, max_iter = susie_iter)
+fit.causal <- susie_rss(z = XtyZ, R = XtX, n = Noutcome, L = L_causal, residual_variance = 1, estimate_prior_method="optim", prior_weights = prior_weights, intercept = FALSE, max_iter = susie_iter)
 ####################################### Resampling the SE ##############################################################
 fit.causal.sampling <- susie.resampling(alpha = fit.causal$alpha, mu = fit.causal$mu, mu2 = fit.causal$mu2)
 fit.causal$beta.se <- fit.causal.sampling$sd

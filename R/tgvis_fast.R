@@ -60,7 +60,7 @@ for(i in 1:length(Lvec)){
 fit.init=tgvis_susie_init_for_L(fit.prev,Lvec[i],ncol(XtX),
                                 scaled_prior_variance=scaled_prior_variance,
                                 estimate_residual_variance=estimate_residual_variance)
-fiti=susie_rss(z=Xty,R=XtX,n=n_outcome,L=Lvec[i],residual_variance=residual_variance,estimate_residual_variance=estimate_residual_variance,estimate_prior_method="EM",max_iter=susie_iter,model_init=fit.init)
+fiti=susie_rss(z=Xty,R=XtX,n=n_outcome,L=Lvec[i],residual_variance=residual_variance,estimate_residual_variance=estimate_residual_variance,estimate_prior_method="optim",max_iter=susie_iter,model_init=fit.init)
 theta=coef(fiti)[-1]*sqrt(n_outcome)/sqrt(XtXadjust)
 fitted=as.numeric(bXest%*%theta[1:p])
 if(length(pleiotropy.keep)>0){
@@ -77,7 +77,7 @@ istar=which.min(Bicvec)
 fit.init=tgvis_susie_init_for_L(fit.store[[istar]],Lvec[istar],ncol(XtX),
                                 scaled_prior_variance=scaled_prior_variance,
                                 estimate_residual_variance=estimate_residual_variance)
-fit.causal=susie_rss(z=Xty,R=XtX,n=n_outcome,L=Lvec[istar],residual_variance=residual_variance,estimate_residual_variance=estimate_residual_variance,estimate_prior_method="EM",max_iter=susie_iter,model_init=fit.init)
+fit.causal=susie_rss(z=Xty,R=XtX,n=n_outcome,L=Lvec[istar],residual_variance=residual_variance,estimate_residual_variance=estimate_residual_variance,estimate_prior_method="optim",max_iter=susie_iter,model_init=fit.init)
 causal.cs=group.pip.filter(pip.summary=summary(fit.causal)$var,pip.thres.cred=pip_thres_cred)
 pip.alive=causal.cs$ind.keep
 if(length(pip.alive)>0){

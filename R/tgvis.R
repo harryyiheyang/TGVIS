@@ -129,7 +129,7 @@ Xty=c(as.numeric(crossprod(bXest,res.beta)),
       if(length(pleiotropy.keep)>0) res.beta[pleiotropy.keep] else numeric(0))
 XtyZ=Xty/sqrt(XtXadjust)
 fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=L.current,
-                     estimate_prior_method="EM",max_iter=susie_iter,intercept=F,
+                     estimate_prior_method="optim",max_iter=susie_iter,intercept=F,
                      standardize=standization,prior_weights=prior_weights,
                      model_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
                      scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance)
@@ -201,7 +201,7 @@ Xty=c(as.numeric(crossprod(bXest,res.beta)),
       if(length(pleiotropy.keep)>0) res.beta[pleiotropy.keep] else numeric(0))
 XtyZ=Xty/sqrt(XtXadjust)
 fit.causal=susie_rss(z=XtyZ,R=XtX,n=Noutcome,L=L.best,
-                     estimate_prior_method="EM",max_iter=susie_iter,intercept=F,
+                     estimate_prior_method="optim",max_iter=susie_iter,intercept=F,
                      standardize=standization,prior_weights=prior_weights,
                      model_init=fit.causal,estimate_residual_variance=estimate_residual_variance,
                      scaled_prior_variance=scaled_prior_variance,residual_variance=residual_variance)
