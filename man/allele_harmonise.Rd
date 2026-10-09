@@ -12,8 +12,18 @@ allele_harmonise(ref_panel, gwas_data)
 \item{gwas_data}{A data.frame or data.table representing GWAS/eQTL summary data. It must contain columns "SNP", "A1", "A2", and "Zscore".}
 }
 \value{
-A data.table with harmonized alleles and adjusted Z-scores. The output contains the harmonized alleles from the reference panel and the original alleles from the GWAS/eQTL data as separate columns.
+A data.table with one row per reference SNP found in \code{gwas_data}
+  with matching or swapped alleles, in the row order of \code{ref_panel}.
+  It holds the GWAS/eQTL columns with \code{Zscore} flipped for swapped
+  alleles, then \code{A1}/\code{A2} from the reference panel, then any other
+  reference-panel columns (prefixed \code{i.} if the name is also a
+  GWAS/eQTL column).
 }
 \description{
 This function harmonizes the allele coding between an LD reference panel and GWAS/eQTL summary data to ensure consistency in the effect allele (A1) and the other allele (A2). The Z-scores in the GWAS/eQTL summary data are adjusted accordingly if the alleles are flipped.
+
+Matching uses a hashed \code{match()} on SNP IDs, so neither input is sorted
+or modified: the caller's \code{ref_panel} and \code{gwas_data} keep their
+row order and keys. Each reference SNP is matched to its first row in
+\code{gwas_data}.
 }

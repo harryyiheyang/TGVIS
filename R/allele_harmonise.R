@@ -2,40 +2,53 @@
 #'
 #' This function harmonizes the allele coding between an LD reference panel and GWAS/eQTL summary data to ensure consistency in the effect allele (A1) and the other allele (A2). The Z-scores in the GWAS/eQTL summary data are adjusted accordingly if the alleles are flipped.
 #'
+#' Matching uses a hashed \code{match()} on SNP IDs, so neither input is sorted
+#' or modified: the caller's \code{ref_panel} and \code{gwas_data} keep their
+#' row order and keys. Each reference SNP is matched to its first row in
+#' \code{gwas_data}.
+#'
 #' @param ref_panel A data.frame or data.table representing an LD reference panel. It must contain columns "SNP", "A1" (effect allele), and "A2" (other allele).
 #' @param gwas_data A data.frame or data.table representing GWAS/eQTL summary data. It must contain columns "SNP", "A1", "A2", and "Zscore".
 #'
-#' @return A data.table with harmonized alleles and adjusted Z-scores. The output contains the harmonized alleles from the reference panel and the original alleles from the GWAS/eQTL data as separate columns.
-#' @importFrom data.table setDT setkey setnames
+#' @return A data.table with one row per reference SNP found in \code{gwas_data}
+#'   with matching or swapped alleles, in the row order of \code{ref_panel}.
+#'   It holds the GWAS/eQTL columns with \code{Zscore} flipped for swapped
+#'   alleles, then \code{A1}/\code{A2} from the reference panel, then any other
+#'   reference-panel columns (prefixed \code{i.} if the name is also a
+#'   GWAS/eQTL column).
+#' @importFrom data.table as.data.table
 #' @export
 #'
 allele_harmonise <- function(ref_panel, gwas_data) {
 stopifnot(all(c("SNP", "A1", "A2") %in% colnames(ref_panel)))
 stopifnot(all(c("SNP", "A1", "A2", "Zscore") %in% colnames(gwas_data)))
 
-setDT(ref_panel)
-setDT(gwas_data)
-setkey(ref_panel, SNP)
-setkey(gwas_data, SNP)
+ref_panel <- as.data.frame(ref_panel)
+gwas_data <- as.data.frame(gwas_data)
 
-merged_data <- gwas_data[ref_panel, nomatch = 0]
-setnames(merged_data, "A1", "A1.x")
-setnames(merged_data, "A2", "A2.x")
-setnames(merged_data, "i.A1", "A1.y")
-setnames(merged_data, "i.A2", "A2.y")
+idx <- match(as.character(ref_panel$SNP), as.character(gwas_data$SNP))
+ga1 <- as.character(gwas_data$A1)[idx]
+ga2 <- as.character(gwas_data$A2)[idx]
+ra1 <- as.character(ref_panel$A1)
+ra2 <- as.character(ref_panel$A2)
 
-ind <- (merged_data$A1.x == merged_data$A1.y & merged_data$A2.x == merged_data$A2.y) |
-  (merged_data$A1.x == merged_data$A2.y & merged_data$A2.x == merged_data$A1.y)
+same <- !is.na(idx) & ga1 == ra1 & ga2 == ra2
+swap <- !is.na(idx) & ga1 == ra2 & ga2 == ra1
+keep <- which(same | swap)
 
-merged_data <- merged_data[ind]
+out <- gwas_data[idx[keep], setdiff(colnames(gwas_data), c("A1", "A2")), drop = FALSE]
+out$Zscore <- ifelse(swap[keep], -out$Zscore, out$Zscore)
 
-merged_data[, Zscore := ifelse(A1.x == A2.y & A2.x == A1.y, -Zscore, Zscore)]
+out$A1 <- ra1[keep]
+out$A2 <- ra2[keep]
+extra <- setdiff(colnames(ref_panel), c("SNP", "A1", "A2"))
+if (length(extra)) {
+  add <- ref_panel[keep, extra, drop = FALSE]
+  clash <- colnames(add) %in% colnames(out)
+  colnames(add)[clash] <- paste0("i.", colnames(add)[clash])
+  out <- cbind(out, add)
+}
+rownames(out) <- NULL
 
-setnames(merged_data, "A1.y", "A1")
-setnames(merged_data, "A2.y", "A2")
-setnames(merged_data, "A1.x", "A11")
-setnames(merged_data, "A2.x", "A21")
-merged_data$A11=merged_data$A21=NULL
-
-return(merged_data)
+as.data.table(out)
 }
